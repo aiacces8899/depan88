@@ -10,8 +10,8 @@
   const BUKTI_JP_IMG = "http://plcl.me/images/W7UAH.png";
   const AYOCEK_IMG = "http://plcl.me/images/mgvak.png";
   const LINK_VIP = "https://linknewshortener-ai88.com/airbet88vip";
-  const LINK_RTP = "https://linknewshortener-ai88.com/bukti-jp";
-  const LINK_BUKTI_JP = "https://linknewshortener-ai88.com/rtp-gacor";
+  const LINK_RTP = "https://linknewshortener-ai88.com/rtp-gacor";
+  const LINK_BUKTI_JP = "https://linknewshortener-ai88.com/bukti-jp";
   const LINK_AYOCEK = "https://linknewshortener-ai88.com/searchingairbet88";
 
   /* ==============================
