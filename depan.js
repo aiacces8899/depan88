@@ -2,328 +2,434 @@
 "use strict";
 
 (function () {
+  // ==========================================
+  // KONFIGURASI
+  // ==========================================
+
   const IMG = [
-    "https://plcl.me/images/zazKN.jpg",
-    "https://plcl.me/images/bRRpQ.jpg",
-    "https://plcl.me/images/LfWm4.png"
+    "https://plcl.me/images/zazKN.jpg"
   ];
 
-  const DELAY_KEY = "popup_delay_1h";
-  const SLIDER_INTERVAL = 7000;
-  const STYLE_ID = "airbet88-popup-style";
-  const POPUP_ID = "airbet88-popup";
-  const OVERLAY_ID = "airbet88-popup-overlay";
+  const CONFIG = {
+    interval: 7000,
+    delay: 3600000,
+    storageKey: "popup_delay_1h",
+    popupId: "airbet88-popup",
+    overlayId: "airbet88-popup-overlay",
+    styleId: "airbet88-popup-style"
+  };
 
   // Hanya tampil di homepage
-  const path = location.pathname.replace(/\/+$/, "").toLowerCase();
+  const path = location.pathname
+    .replace(/\/+$/, "")
+    .toLowerCase();
 
   if (path !== "" && path !== "/" && !path.includes("home")) {
     return;
   }
 
-  // Jeda popup 1 jam setelah ditutup
+  // Cek jeda popup 1 jam
   try {
-    const lastClosed = Number(localStorage.getItem(DELAY_KEY) || 0);
+    const lastClosed = Number(
+      localStorage.getItem(CONFIG.storageKey) || 0
+    );
 
-    if (Date.now() - lastClosed < 3600000) {
+    if (lastClosed && Date.now() - lastClosed < CONFIG.delay) {
       return;
     }
   } catch (e) {}
 
+  // ==========================================
+  // CSS POPUP
+  // ==========================================
+
+  const CSS = `
+    #${CONFIG.popupId},
+    #${CONFIG.popupId} *,
+    #${CONFIG.overlayId} {
+      box-sizing: border-box;
+    }
+
+    #${CONFIG.overlayId} {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483646;
+      background: rgba(0, 10, 12, .82);
+    }
+
+    #${CONFIG.popupId} {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: flex;
+      align-items: safe center;
+      justify-content: center;
+      padding: 12px;
+      overflow-y: auto;
+      font-family: Arial, sans-serif;
+      color: #f6fffd;
+    }
+
+    #${CONFIG.popupId} .popup-box {
+      position: relative;
+      width: min(100%, 430px);
+      max-height: calc(100dvh - 24px);
+      overflow-y: auto;
+      padding: 12px;
+      border: 1px solid rgba(232, 201, 134, .6);
+      border-radius: 22px;
+      background: linear-gradient(
+        160deg,
+        #164745 0%,
+        #092b2c 45%,
+        #041819 100%
+      );
+      box-shadow: 0 18px 50px rgba(0,0,0,.6);
+      scrollbar-width: thin;
+      scrollbar-color: #4b7770 transparent;
+      animation: ayoPopupIn .3s ease both;
+    }
+
+    @keyframes ayoPopupIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* HEADER */
+
+    #${CONFIG.popupId} .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 57px;
+      margin-bottom: 12px;
+      padding: 2px 35px 2px 4px;
+    }
+
+    #${CONFIG.popupId} .brand-icon {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 39px;
+      height: 39px;
+      border: 1px solid #e8c986;
+      border-radius: 12px;
+      background: #103334;
+      color: #e8c986;
+      font-size: 24px;
+    }
+
+    #${CONFIG.popupId} .brand-name {
+      font-size: clamp(19px, 5vw, 23px);
+      font-weight: 900;
+      letter-spacing: .6px;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    #${CONFIG.popupId} .brand-name span {
+      color: #e8c986;
+    }
+
+    #${CONFIG.popupId} .brand-sub {
+      margin-top: 4px;
+      color: #b7dcd6;
+      font-size: 10px;
+      letter-spacing: .6px;
+    }
+
+    /* CLOSE */
+
+    #${CONFIG.popupId} .close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid #e8c986;
+      border-radius: 50%;
+      background: #103536;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    /* IMAGE SLIDER */
+
+    #${CONFIG.popupId} .slider {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1080 / 1350;
+      overflow: hidden;
+      border: 1px solid rgba(232,201,134,.45);
+      border-radius: 13px;
+      background: #041819;
+    }
+
+    #${CONFIG.popupId} .slide-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* NAVIGASI */
+
+    #${CONFIG.popupId} .nav {
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 36px;
+      padding: 0;
+      transform: translateY(-50%);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 8px;
+      background: rgba(0,25,27,.65);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    #${CONFIG.popupId} .nav:hover {
+      background: rgba(11,80,76,.9);
+    }
+
+    #${CONFIG.popupId} .prev {
+      left: 5px;
+    }
+
+    #${CONFIG.popupId} .next {
+      right: 5px;
+    }
+
+    /* DOT SLIDER */
+
+    #${CONFIG.popupId} .dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 19px;
+      margin: 9px 0 7px;
+    }
+
+    #${CONFIG.popupId} .dot {
+      width: 7px;
+      height: 7px;
+      padding: 0;
+      border: none;
+      border-radius: 10px;
+      background: #647d79;
+      cursor: pointer;
+      transition: width .2s, background .2s;
+    }
+
+    #${CONFIG.popupId} .dot.active {
+      width: 22px;
+      background: #e8c986;
+    }
+
+    /* TITLE */
+
+    #${CONFIG.popupId} .promo-title {
+      margin: 0 0 12px;
+      color: #e8c986;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+    }
+
+    /* ACTIONS */
+
+    #${CONFIG.popupId} .actions {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+    }
+
+    #${CONFIG.popupId} .actions-heading {
+      margin: 0 0 10px;
+      color: #c8e7e2;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.3px;
+    }
+
+    #${CONFIG.popupId} .btn-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 9px;
+    }
+
+    #${CONFIG.popupId} .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+      min-height: 43px;
+      padding: 9px 5px;
+      border: 1px solid rgba(232,201,134,.65);
+      border-radius: 11px;
+      background: linear-gradient(
+        135deg,
+        #1b7771,
+        #0b4544
+      );
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+      transition: filter .2s;
+    }
+
+    #${CONFIG.popupId} .btn:hover {
+      filter: brightness(1.15);
+    }
+
+    #${CONFIG.popupId} .btn .icon {
+      flex: none;
+      color: #e8c986;
+      font-size: 16px;
+    }
+
+    /* BUTTON TUTUP */
+
+    #${CONFIG.popupId} .dismiss {
+      display: block;
+      width: 100%;
+      min-height: 39px;
+      margin-top: 9px;
+      padding: 9px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 10px;
+      background: #061f20;
+      color: #bdd8d3;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    #${CONFIG.popupId} .dismiss:hover {
+      background: #103536;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 390px) {
+      #${CONFIG.popupId} {
+        padding: 8px;
+      }
+
+      #${CONFIG.popupId} .popup-box {
+        padding: 9px;
+        border-radius: 17px;
+      }
+
+      #${CONFIG.popupId} .brand {
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+
+      #${CONFIG.popupId} .brand-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      #${CONFIG.popupId} .brand-name {
+        font-size: 19px;
+      }
+
+      #${CONFIG.popupId} .brand-sub {
+        font-size: 9px;
+      }
+
+      #${CONFIG.popupId} .btn {
+        font-size: 10px;
+      }
+
+      #${CONFIG.popupId} .actions {
+        padding: 9px;
+      }
+    }
+
+    @media (max-height: 650px) {
+      #${CONFIG.popupId} .popup-box {
+        padding: 8px;
+      }
+
+      #${CONFIG.popupId} .brand {
+        min-height: 45px;
+        margin-bottom: 7px;
+      }
+
+      #${CONFIG.popupId} .dots {
+        margin: 5px 0;
+      }
+
+      #${CONFIG.popupId} .promo-title {
+        margin-bottom: 7px;
+      }
+
+      #${CONFIG.popupId} .actions {
+        padding: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #${CONFIG.popupId} *,
+      #${CONFIG.popupId} {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  `;
+
+  // ==========================================
+  // INITIALIZE POPUP
+  // ==========================================
+
   function init() {
-    if (document.getElementById(POPUP_ID)) return;
+    if (document.getElementById(CONFIG.popupId)) return;
 
-    // CSS otomatis dimasukkan melalui JavaScript
-    if (!document.getElementById(STYLE_ID)) {
+    // Inject CSS satu kali
+    if (!document.getElementById(CONFIG.styleId)) {
       const style = document.createElement("style");
-      style.id = STYLE_ID;
-
-      style.textContent = `
-        #${OVERLAY_ID},
-        #${POPUP_ID},
-        #${POPUP_ID} * {
-          box-sizing: border-box;
-        }
-
-        #${OVERLAY_ID} {
-          position: fixed;
-          inset: 0;
-          z-index: 2147483646;
-          background: rgba(0,9,12,.85);
-        }
-
-        #${POPUP_ID} {
-          position: fixed;
-          inset: 0;
-          z-index: 2147483647;
-          display: grid;
-          place-items: center;
-          padding: 12px;
-          overflow-y: auto;
-          font-family: Arial, sans-serif;
-          color: #f6fffd;
-        }
-
-        #${POPUP_ID} .popup-box {
-          position: relative;
-          width: min(100%,430px);
-          max-height: calc(100dvh - 24px);
-          overflow-y: auto;
-          padding: 13px;
-          border: 1px solid rgba(232,201,134,.55);
-          border-radius: 22px;
-          background: linear-gradient(
-            160deg,
-            #154544,
-            #092c2e 48%,
-            #041617
-          );
-          box-shadow: 0 18px 55px #000a;
-          scrollbar-width: thin;
-          animation: popupAppear .3s ease;
-        }
-
-        @keyframes popupAppear {
-          from {
-            opacity: 0;
-            transform: translateY(12px) scale(.97);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        #${POPUP_ID} .brand {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          padding: 7px 35px 14px 5px;
-          text-align: center;
-        }
-
-        #${POPUP_ID} .brand-icon {
-          display: grid;
-          place-items: center;
-          flex: none;
-          width: 40px;
-          height: 40px;
-          border: 1px solid #e8c986;
-          border-radius: 12px;
-          background: #102f30;
-          color: #e8c986;
-          font-size: 25px;
-        }
-
-        #${POPUP_ID} .brand-name {
-          font-size: 23px;
-          font-weight: 900;
-          letter-spacing: 1px;
-          line-height: 1.1;
-        }
-
-        #${POPUP_ID} .brand-name span {
-          color: #e8c986;
-        }
-
-        #${POPUP_ID} .brand-sub {
-          margin-top: 5px;
-          color: #b7dcd6;
-          font-size: 10px;
-          letter-spacing: 1px;
-        }
-
-        #${POPUP_ID} .close {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          z-index: 5;
-          width: 32px;
-          height: 32px;
-          padding: 0;
-          border: 1px solid #e8c986;
-          border-radius: 50%;
-          background: #133b3b;
-          color: white;
-          font-size: 22px;
-          cursor: pointer;
-        }
-
-        #${POPUP_ID} .slider {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 1080 / 1350;
-          overflow: hidden;
-          border: 1px solid #e8c98670;
-          border-radius: 14px;
-          background: #031314;
-        }
-
-        #${POPUP_ID} .slide-image {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-        }
-
-        #${POPUP_ID} .nav {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 34px;
-          height: 40px;
-          padding: 0;
-          border: 1px solid #ffffff60;
-          border-radius: 10px;
-          background: #092d2ddd;
-          color: white;
-          font-size: 26px;
-          cursor: pointer;
-        }
-
-        #${POPUP_ID} .prev {
-          left: 8px;
-        }
-
-        #${POPUP_ID} .next {
-          right: 8px;
-        }
-
-        #${POPUP_ID} .dots {
-          display: flex;
-          justify-content: center;
-          gap: 7px;
-          margin: 11px 0;
-        }
-
-        #${POPUP_ID} .dot {
-          width: 8px;
-          height: 8px;
-          padding: 0;
-          border: 0;
-          border-radius: 10px;
-          background: #647d79;
-          cursor: pointer;
-        }
-
-        #${POPUP_ID} .dot.active {
-          width: 23px;
-          background: #e8c986;
-        }
-
-        #${POPUP_ID} .promo-title {
-          margin: 2px 0 12px;
-          text-align: center;
-          color: #e8c986;
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: 1.5px;
-        }
-
-        #${POPUP_ID} .actions {
-          padding: 12px;
-          border: 1px solid #ffffff20;
-          border-radius: 14px;
-          background: #ffffff08;
-        }
-
-        #${POPUP_ID} .actions-heading {
-          margin: 0 0 10px;
-          text-align: center;
-          color: #c8e7e2;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 1.5px;
-        }
-
-        #${POPUP_ID} .btn-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 9px;
-        }
-
-        #${POPUP_ID} .btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          min-height: 43px;
-          padding: 9px 6px;
-          border: 1px solid #e8c9868c;
-          border-radius: 10px;
-          background: linear-gradient(
-            135deg,
-            #1c7771,
-            #0b4544
-          );
-          color: white;
-          text-decoration: none;
-          text-align: center;
-          font-size: 11px;
-          font-weight: 800;
-          transition: filter .2s;
-        }
-
-        #${POPUP_ID} .btn:hover {
-          filter: brightness(1.15);
-        }
-
-        #${POPUP_ID} .btn .icon {
-          font-size: 17px;
-          color: #e8c986;
-        }
-
-        #${POPUP_ID} .dismiss {
-          display: block;
-          width: 100%;
-          margin-top: 9px;
-          padding: 10px;
-          border: 1px solid #ffffff25;
-          border-radius: 10px;
-          background: #061f20;
-          color: #bdd8d3;
-          font-size: 11px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-
-        @media (max-height: 650px) {
-          #${POPUP_ID} .popup-box {
-            padding: 8px;
-          }
-
-          #${POPUP_ID} .brand {
-            padding-bottom: 7px;
-          }
-
-          #${POPUP_ID} .actions {
-            padding: 7px;
-          }
-
-          #${POPUP_ID} .dots {
-            margin: 6px 0;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          #${POPUP_ID} .popup-box {
-            animation: none;
-          }
-        }
-      `;
-
+      style.id = CONFIG.styleId;
+      style.textContent = CSS;
       document.head.appendChild(style);
     }
 
     // Overlay
     const overlay = document.createElement("div");
-    overlay.id = OVERLAY_ID;
+    overlay.id = CONFIG.overlayId;
 
     // Popup
     const popup = document.createElement("div");
-    popup.id = POPUP_ID;
+    popup.id = CONFIG.popupId;
 
     popup.innerHTML = `
       <section class="popup-box"
@@ -331,8 +437,11 @@
         aria-modal="true"
         aria-label="Promo AIRBET88">
 
-        <button class="close" type="button"
-          aria-label="Tutup popup">×</button>
+        <button
+          class="close"
+          type="button"
+          aria-label="Tutup popup"
+        >×</button>
 
         <header class="brand">
           <div class="brand-icon">⌕</div>
@@ -354,16 +463,26 @@
             src="${IMG[0]}"
             alt="Promo AIRBET88 slide 1"
             decoding="async"
+            width="1080"
+            height="1350"
           >
 
-          <button class="nav prev" type="button"
-            aria-label="Gambar sebelumnya">‹</button>
+          <button
+            class="nav prev"
+            type="button"
+            aria-label="Gambar sebelumnya"
+          >‹</button>
 
-          <button class="nav next" type="button"
-            aria-label="Gambar berikutnya">›</button>
+          <button
+            class="nav next"
+            type="button"
+            aria-label="Gambar berikutnya"
+          >›</button>
         </div>
 
-        <div class="dots"></div>
+        <div class="dots"
+          aria-label="Navigasi gambar promosi">
+        </div>
 
         <div class="promo-title">
           AIRBET88.COM · SENSASIONAL
@@ -375,18 +494,22 @@
           </p>
 
           <div class="btn-row">
-            <a class="btn"
+            <a
+              class="btn"
               href="https://linknewshortener-ai88.com/airbet88vip"
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               <span class="icon">♛</span>
               MEMBERSHIP VIP
             </a>
 
-            <a class="btn"
+            <a
+              class="btn"
               href="https://linknewshortener-ai88.com/telegramrotator"
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               <span class="icon">✆</span>
               HUBUNGI ADMIN
             </a>
@@ -401,78 +524,106 @@
 
     document.body.append(overlay, popup);
 
-    // Slider
-    const img = popup.querySelector(".slide-image");
+    // ==========================================
+    // SLIDER
+    // ==========================================
+
+    const image = popup.querySelector(".slide-image");
     const dots = popup.querySelector(".dots");
 
     let currentIndex = 0;
-    let sliderTimer = null;
+    let timer = null;
+    let closed = false;
 
-    IMG.forEach((_, i) => {
+    // Membuat indikator slider
+    IMG.forEach((_, index) => {
       const dot = document.createElement("button");
 
       dot.type = "button";
       dot.className = "dot";
-      dot.setAttribute("aria-label", `Slide ${i + 1}`);
+      dot.setAttribute(
+        "aria-label",
+        `Tampilkan gambar ${index + 1}`
+      );
 
       dot.addEventListener("click", () => {
-        showSlide(i);
+        showSlide(index);
         restartSlider();
       });
 
       dots.appendChild(dot);
     });
 
-    function showSlide(i) {
-      currentIndex = (i + IMG.length) % IMG.length;
+    // Menampilkan gambar
+    function showSlide(index) {
+      currentIndex = (index + IMG.length) % IMG.length;
 
-      img.src = IMG[currentIndex];
-      img.alt = `Promo AIRBET88 slide ${currentIndex + 1}`;
+      if (image.src !== IMG[currentIndex]) {
+        image.src = IMG[currentIndex];
+      }
 
-      [...dots.children].forEach((dot, j) => {
-        const active = j === currentIndex;
+      image.alt = `Promo AIRBET88 slide ${currentIndex + 1}`;
+
+      Array.from(dots.children).forEach((dot, index) => {
+        const active = index === currentIndex;
 
         dot.classList.toggle("active", active);
         dot.setAttribute("aria-current", String(active));
       });
     }
 
+    // Timer slider
     function restartSlider() {
-      clearInterval(sliderTimer);
+      clearInterval(timer);
 
-      if (IMG.length > 1) {
-        sliderTimer = setInterval(() => {
+      if (IMG.length > 1 && !closed) {
+        timer = setInterval(() => {
           showSlide(currentIndex + 1);
-        }, SLIDER_INTERVAL);
+        }, CONFIG.interval);
       }
     }
 
+    // ==========================================
+    // CLOSE POPUP
+    // ==========================================
+
     function closePopup() {
-      clearInterval(sliderTimer);
+      if (closed) return;
+
+      closed = true;
+      clearInterval(timer);
 
       popup.remove();
       overlay.remove();
 
       try {
         localStorage.setItem(
-          DELAY_KEY,
+          CONFIG.storageKey,
           String(Date.now())
         );
       } catch (e) {}
     }
 
-    // Navigasi
-    popup.querySelector(".prev").addEventListener("click", () => {
-      showSlide(currentIndex - 1);
-      restartSlider();
-    });
+    // ==========================================
+    // EVENTS
+    // ==========================================
 
-    popup.querySelector(".next").addEventListener("click", () => {
-      showSlide(currentIndex + 1);
-      restartSlider();
-    });
+    popup.querySelector(".prev").addEventListener(
+      "click",
+      () => {
+        showSlide(currentIndex - 1);
+        restartSlider();
+      }
+    );
 
-    // Tutup popup
+    popup.querySelector(".next").addEventListener(
+      "click",
+      () => {
+        showSlide(currentIndex + 1);
+        restartSlider();
+      }
+    );
+
     popup.querySelector(".close").addEventListener(
       "click",
       closePopup
@@ -490,7 +641,10 @@
     restartSlider();
   }
 
-  // Jalankan setelah DOM siap
+  // ==========================================
+  // DOCUMENT READY
+  // ==========================================
+
   if (document.readyState === "loading") {
     document.addEventListener(
       "DOMContentLoaded",
