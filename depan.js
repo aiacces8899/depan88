@@ -1,8 +1,11 @@
+
 "use strict";
 
 (function () {
   const IMG = [
-    "https://www.image2url.com/r2/default/images/1788895681545-d7772558-a997-41a2-a4d8-e0f872a6d8d7.png",
+    "https://plcl.me/images/zazKN.jpg",
+    "https://plcl.me/images/bRRpQ.jpg",
+    "https://plcl.me/images/LfWm4.png"
   ];
 
   const DELAY_KEY = "popup_delay_1h";
@@ -11,1805 +14,490 @@
   const POPUP_ID = "airbet88-popup";
   const OVERLAY_ID = "airbet88-popup-overlay";
 
-  let popupCreated = false;
-  let currentIndex = 0;
-  let sliderTimer = null;
-  let changingSlide = false;
+  // Hanya tampil di homepage
+  const path = location.pathname.replace(/\/+$/, "").toLowerCase();
 
-  /* ==============================
-     CEK HALAMAN
-  ============================== */
-
-  function isAllowedPage() {
-    const path = location.pathname
-      .replace(/\/+$/, "")
-      .toLowerCase();
-
-    return (
-      path === "" ||
-      path === "/" ||
-      path.includes("home")
-    );
+  if (path !== "" && path !== "/" && !path.includes("home")) {
+    return;
   }
 
-  function canShowPopup() {
-    if (!isAllowedPage()) return false;
+  // Jeda popup 1 jam setelah ditutup
+  try {
+    const lastClosed = Number(localStorage.getItem(DELAY_KEY) || 0);
 
-    const lastClosed = Number(
-      localStorage.getItem(DELAY_KEY) || 0
-    );
-
-    return !(
-      lastClosed &&
-      Date.now() - lastClosed < 3600000
-    );
-  }
-
-  /* ==============================
-     PRELOAD SEMUA GAMBAR
-  ============================== */
-
-  function preloadImages() {
-    return Promise.all(
-      IMG.map(function (url) {
-        return new Promise(function (resolve) {
-          const preload = new Image();
-
-          preload.decoding = "async";
-
-          preload.onload = function () {
-            if (typeof preload.decode === "function") {
-              preload
-                .decode()
-                .catch(function () {})
-                .finally(resolve);
-            } else {
-              resolve();
-            }
-          };
-
-          preload.onerror = resolve;
-          preload.src = url;
-
-          if (
-            preload.complete &&
-            preload.naturalWidth > 0
-          ) {
-            if (typeof preload.decode === "function") {
-              preload
-                .decode()
-                .catch(function () {})
-                .finally(resolve);
-            } else {
-              resolve();
-            }
-          }
-        });
-      })
-    );
-  }
-
-  /* ==============================
-     CSS
-  ============================== */
-
-  function injectStyle() {
-    if (document.getElementById(STYLE_ID)) {
+    if (Date.now() - lastClosed < 3600000) {
       return;
     }
-
-    const style =
-      document.createElement("style");
-
-    style.id = STYLE_ID;
-
-    style.textContent = `
-
-      @keyframes airbet88FadeIn {
-        from {
-          opacity: 0;
-        }
-
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes airbet88FadeOut {
-        from {
-          opacity: 1;
-        }
-
-        to {
-          opacity: 0;
-        }
-      }
-
-      @keyframes airbet88SlideIn {
-        from {
-          transform: translateY(25px);
-          opacity: 0;
-        }
-
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      @keyframes airbet88PopupSpinOut {
-        0% {
-          transform:
-            scale(1)
-            rotate(0deg);
-
-          opacity: 1;
-        }
-
-        55% {
-          transform:
-            scale(1.08)
-            rotate(360deg);
-
-          opacity: .95;
-        }
-
-        100% {
-          transform:
-            scale(0)
-            rotate(720deg);
-
-          opacity: 0;
-        }
-      }
-
-      @keyframes airbet88Shine {
-        0% {
-          left: -40%;
-        }
-
-        100% {
-          left: 125%;
-        }
-      }
-
-      /* ==============================
-         OVERLAY
-      ============================== */
-
-      #${OVERLAY_ID} {
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 2147483646;
-
-        background:
-          linear-gradient(
-            180deg,
-            rgba(0, 0, 0, .35),
-            rgba(0, 0, 0, .82)
-          );
-
-        backdrop-filter:
-          blur(8px);
-
-        -webkit-backdrop-filter:
-          blur(8px);
-
-        animation:
-          airbet88FadeIn
-          .35s
-          ease
-          forwards;
-      }
-
-      #${OVERLAY_ID}.fade-out {
-        animation:
-          airbet88FadeOut
-          .35s
-          ease
-          forwards;
-      }
-
-      /* ==============================
-         POPUP WRAPPER
-      ============================== */
-
-      #${POPUP_ID} {
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 2147483647;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        flex-direction: column;
-
-        gap: 10px;
-
-        padding: 12px;
-
-        box-sizing: border-box;
-
-        background: transparent;
-
-        overflow-y: auto;
-      }
-
-      #${POPUP_ID}.spin-out {
-        animation:
-          airbet88PopupSpinOut
-          .82s
-          cubic-bezier(
-            .55,
-            .05,
-            .25,
-            1
-          )
-          forwards;
-
-        transform-origin:
-          center center;
-
-        pointer-events: none;
-      }
-
-      /* ==============================
-         BOX SLIDER
-      ============================== */
-
-      #airbet88-popup-box {
-        position: relative;
-
-        animation:
-          airbet88SlideIn
-          .45s
-          ease
-          forwards;
-
-        filter:
-          none !important;
-
-        box-shadow:
-          none !important;
-
-        background:
-          transparent !important;
-
-        border:
-          none !important;
-      }
-
-      /* ==============================
-         TOMBOL CLOSE
-      ============================== */
-
-      #airbet88-close {
-        position: absolute;
-
-        top: -12px;
-
-        right: -12px;
-
-        width: 32px;
-
-        height: 32px;
-
-        border-radius: 50%;
-
-        background:
-          linear-gradient(
-            180deg,
-            #67a2a6,
-            #24484a 60%,
-            #111
-          );
-
-        color: #fff;
-
-        font-weight: 900;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        cursor: pointer;
-
-        z-index: 9999;
-
-        border:
-          1px solid #8bc7c9;
-
-        box-shadow:
-          0 0 16px
-          rgba(
-            103,
-            162,
-            166,
-            .7
-          );
-
-        transition:
-          transform .2s ease,
-          filter .2s ease;
-      }
-
-      #airbet88-close:hover {
-        transform:
-          scale(1.08);
-
-        filter:
-          brightness(1.2);
-      }
-
-      #airbet88-close:active {
-        transform:
-          scale(.92);
-      }
-
-      /* ==============================
-         IMAGE STAGE
-      ============================== */
-
-      #airbet88-image-stage {
-        position: relative;
-
-        display: grid;
-
-        place-items: center;
-
-        max-width: 92vw;
-
-        max-height: 58vh;
-
-        overflow: hidden;
-
-        background:
-          transparent !important;
-      }
-
-      #airbet88-popup-img,
-      #airbet88-popup-img-next {
-        grid-area:
-          1 / 1;
-
-        display: block;
-
-        max-width: 92vw;
-
-        max-height: 58vh;
-
-        width: auto;
-
-        height: auto;
-
-        object-fit: contain;
-
-        border-radius: 0;
-
-        box-shadow:
-          none !important;
-
-        filter:
-          none !important;
-
-        background:
-          transparent !important;
-
-        border:
-          none !important;
-
-        will-change:
-          transform,
-          opacity;
-      }
-
-      #airbet88-popup-img {
-        position: relative;
-
-        z-index: 1;
-
-        opacity: 1;
-
-        transform:
-          translateX(0);
-      }
-
-      #airbet88-popup-img-next {
-        position: relative;
-
-        z-index: 2;
-
-        opacity: 0;
-
-        transform:
-          translateX(100%);
-
-        pointer-events: none;
-      }
-
-      /* ==============================
-         SLIDE TRANSITION
-      ============================== */
-
-      #airbet88-popup-img-next.slide-rtl {
-        opacity: 1;
-
-        transform:
-          translateX(0);
-
-        transition:
-          transform
-          .7s
-          cubic-bezier(
-            .22,
-            .8,
-            .28,
-            1
-          ),
-          opacity
-          .3s
-          ease;
-      }
-
-      #airbet88-popup-img.slide-old-left {
-        opacity: .28;
-
-        transform:
-          translateX(-18%);
-
-        transition:
-          transform
-          .7s
-          cubic-bezier(
-            .22,
-            .8,
-            .28,
-            1
-          ),
-          opacity
-          .55s
-          ease;
-      }
-
-      /* ==============================
-         NAVIGATION SLIDER
-      ============================== */
-
-      .airbet88-nav {
-        position: absolute;
-
-        top: 50%;
-
-        transform:
-          translateY(-50%);
-
-        width: 30px;
-
-        height: 30px;
-
-        border-radius: 50%;
-
-        border:
-          1px solid #8bc7c9;
-
-        background:
-          linear-gradient(
-            180deg,
-            #4f8f92,
-            #173638
-          );
-
-        color: #fff;
-
-        font-size: 24px;
-
-        font-weight: 900;
-
-        cursor: pointer;
-
-        z-index: 9998;
-
-        line-height: 22px;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        padding: 0;
-
-        box-shadow:
-          0 0 14px
-          rgba(
-            103,
-            162,
-            166,
-            .55
-          );
-
-        transition:
-          transform .2s ease,
-          filter .2s ease;
-      }
-
-      .airbet88-nav:hover {
-        filter:
-          brightness(1.2);
-      }
-
-      .airbet88-nav:active {
-        transform:
-          translateY(-50%)
-          scale(.9);
-      }
-
-      #airbet88-prev {
-        left: 8px;
-      }
-
-      #airbet88-next {
-        right: 8px;
-      }
-
-      /* ==============================
-         DOT SLIDER
-      ============================== */
-
-      #airbet88-dots {
-        position: absolute;
-
-        left: 50%;
-
-        bottom: 10px;
-
-        transform:
-          translateX(-50%);
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        gap: 7px;
-
-        z-index: 9998;
-
-        padding:
-          5px 8px;
-
-        border-radius:
-          20px;
-
-        background:
-          rgba(
-            0,
-            0,
-            0,
-            .25
-          );
-      }
-
-      .airbet88-dot {
-        width: 8px;
-
-        height: 8px;
-
-        min-width: 8px;
-
-        border-radius: 50%;
-
-        border: none;
-
-        background:
-          rgba(
-            255,
-            255,
-            255,
-            .5
-          );
-
-        padding: 0;
-
-        cursor: pointer;
-
-        transition:
-          transform .2s ease,
-          background .2s ease;
-      }
-
-      .airbet88-dot.active {
-        background:
-          #67a2a6;
-
-        transform:
-          scale(1.3);
-
-        box-shadow:
-          0 0 10px
-          #67a2a6;
-      }
-
-      /* ==============================
-         TITLE
-      ============================== */
-
-      #airbet88-title {
-        font-weight: 900;
-
-        font-size: 16px;
-
-        color:
-          #b9e3e4;
-
-        letter-spacing:
-          2px;
-
-        text-align: center;
-
-        text-shadow:
-          0 0 10px
-          rgba(
-            103,
-            162,
-            166,
-            .9
-          ),
-          0 0 25px
-          rgba(
-            103,
-            162,
-            166,
-            .55
-          );
-      }
-
-      /* ==============================
-         GIF ROW
-      ============================== */
-
-      .airbet88-gif-row {
-        display: flex;
-
-        gap: 10px;
-
-        justify-content: center;
-
-        align-items: center;
-      }
-
-      .airbet88-gif-box {
-        position: relative;
-
-        width: 90px;
-      }
-
-      .airbet88-gif-box img {
-        display: block;
-
-        width: 100%;
-
-        border-radius: 12px;
-
-        pointer-events: none;
-
-        box-shadow:
-          0 0 10px
-          rgba(
-            103,
-            162,
-            166,
-            .35
-          );
-      }
-
-      /* ==============================
-         BUTTON ROW
-      ============================== */
-
-      .airbet88-btn-row {
-        width: 310px;
-
-        display: flex;
-
-        flex-wrap: wrap;
-
-        gap: 8px;
-
-        align-items: center;
-
-        justify-content: center;
-
-        margin-top: 2px;
-      }
-
-      .airbet88-btn,
-      .airbet88-ok {
-        position: relative;
-
-        overflow: hidden;
-
-        cursor: pointer;
-
-        text-align: center;
-
-        font-weight: 900;
-
-        color:
-          #fff !important;
-
-        transition:
-          transform .18s ease,
-          filter .18s ease;
-      }
-
-      /* ==============================
-         BUTTON UTAMA
-      ============================== */
-
-      .airbet88-btn {
-        width: 148px;
-
-        padding:
-          12px 0;
-
-        border-radius:
-          15px;
-
-        font-size:
-          12px;
-
-        white-space:
-          nowrap;
-
-        text-decoration:
-          none;
-
-        letter-spacing:
-          .5px;
-
-        background:
-          linear-gradient(
-            180deg,
-            #67a2a6 0%,
-            #3f6b6e 30%,
-            #24484a 70%,
-            #111 100%
-          );
-
-        border:
-          1px solid
-          #8bc7c9;
-
-        box-shadow:
-          0 0 12px
-          rgba(
-            63,
-            107,
-            110,
-            .7
-          ),
-
-          0 0 28px
-          rgba(
-            63,
-            107,
-            110,
-            .38
-          ),
-
-          0 9px 22px
-          rgba(
-            0,
-            0,
-            0,
-            .55
-          ),
-
-          inset 0 1px 0
-          rgba(
-            255,
-            255,
-            255,
-            .2
-          );
-      }
-
-      /* ==============================
-         BUTTON OK
-      ============================== */
-
-      .airbet88-ok {
-        width: 120px;
-
-        padding:
-          11px 0;
-
-        border-radius:
-          14px;
-
-        font-size:
-          14px;
-
-        background:
-          linear-gradient(
-            180deg,
-            #67a2a6 0%,
-            #3f6b6e 38%,
-            #24484a 75%,
-            #111 100%
-          );
-
-        border:
-          1px solid
-          #b9e3e4;
-
-        box-shadow:
-          0 0 12px
-          rgba(
-            103,
-            162,
-            166,
-            .8
-          ),
-
-          0 0 25px
-          rgba(
-            103,
-            162,
-            166,
-            .45
-          ),
-
-          0 8px 20px
-          rgba(
-            0,
-            0,
-            0,
-            .5
-          ),
-
-          inset 0 1px 0
-          rgba(
-            255,
-            255,
-            255,
-            .2
-          );
-      }
-
-      .airbet88-btn:hover,
-      .airbet88-ok:hover {
-        transform:
-          scale(1.045);
-
-        filter:
-          brightness(1.18);
-      }
-
-      .airbet88-btn:active,
-      .airbet88-ok:active {
-        transform:
-          scale(.96);
-      }
-
-      /* ==============================
-         SHINE BUTTON
-      ============================== */
-
-      .airbet88-btn::before,
-      .airbet88-ok::before {
-        content: "";
-
-        position: absolute;
-
-        top: 0;
-
-        left: -40%;
-
-        width: 25%;
-
-        height: 100%;
-
-        background:
-          linear-gradient(
-            120deg,
-
-            rgba(
-              255,
-              255,
-              255,
-              0
-            ),
-
-            rgba(
-              185,
-              227,
-              228,
-              .95
-            ),
-
-            rgba(
-              255,
-              255,
-              255,
-              0
-            )
-          );
-
-        transform:
-          skewX(-25deg);
-
-        animation:
-          airbet88Shine
-          2s
-          infinite;
-
-        pointer-events: none;
-      }
-
-      /* ==============================
-         MOBILE
-      ============================== */
-
-      @media (
-        max-width: 768px
-      ) {
-
-        #${POPUP_ID} {
-          gap: 8px;
-
-          padding:
-            10px;
-        }
-
-        #airbet88-image-stage,
-        #airbet88-popup-img,
-        #airbet88-popup-img-next {
-          max-width:
-            94vw;
-
-          max-height:
-            55vh;
-        }
-
-        #airbet88-title {
-          font-size:
-            14px;
-
-          letter-spacing:
-            1.4px;
-        }
-
-        .airbet88-gif-box {
-          width:
-            78px;
-        }
-
-        .airbet88-btn-row {
-          width:
-            310px;
-
-          max-width:
-            94vw;
-
-          gap:
-            8px;
-        }
-
-        .airbet88-btn {
-          width:
-            148px;
-
-          max-width:
-            calc(
-              47vw - 8px
-            );
-
-          font-size:
-            12px;
-
-          padding:
-            11px 0;
-        }
-
-        .airbet88-ok {
-          width:
-            115px;
-
-          font-size:
-            13px;
-
-          padding:
-            10px 0;
-        }
-      }
-
-      /* ==============================
-         MOBILE KECIL
-      ============================== */
-
-      @media (
-        max-width: 390px
-      ) {
-
-        .airbet88-gif-row {
-          gap: 7px;
-        }
-
-        .airbet88-gif-box {
-          width:
-            72px;
-        }
-
-        .airbet88-btn-row {
-          width:
-            290px;
-
-          max-width:
-            94vw;
-        }
-
-        .airbet88-btn {
-          width:
-            139px;
-
-          max-width:
-            calc(
-              47vw - 8px
-            );
-
-          font-size:
-            11px;
-        }
-
-        #airbet88-title {
-          font-size:
-            13px;
-        }
-
-        #airbet88-close {
-          right:
-            -5px;
-
-          top:
-            -10px;
-        }
-      }
-
-    `;
-
-    document.head.appendChild(
-      style
-    );
-  }
-
-  /* ==============================
-     BUAT POPUP
-  ============================== */
-
-  async function createPopup() {
-    if (
-      popupCreated ||
-      !canShowPopup() ||
-      !document.body
-    ) {
-      return;
-    }
-
-    popupCreated = true;
-
-    injectStyle();
-
-    await preloadImages();
-
-    /* ==============================
-       OVERLAY
-    ============================== */
-
-    const overlay =
-      document.createElement(
-        "div"
-      );
-
-    overlay.id =
-      OVERLAY_ID;
-
-    /* ==============================
-       POPUP
-    ============================== */
-
-    const popup =
-      document.createElement(
-        "div"
-      );
-
-    popup.id =
-      POPUP_ID;
-
-    popup.innerHTML = `
-
-      <div id="airbet88-popup-box">
-
-        <div
-          id="airbet88-close"
-          title="Tutup"
-          role="button"
-          aria-label="Tutup popup"
-        >
-          ✕
-        </div>
-
-        <button
-          type="button"
-          class="airbet88-nav"
-          id="airbet88-prev"
-          aria-label="Gambar sebelumnya"
-        >
-          ‹
-        </button>
-
-        <div id="airbet88-image-stage">
-
-          <img
-            id="airbet88-popup-img"
-            src="${IMG[0]}"
-            alt="AIRBET88.com SENSASIONAL Slide 1"
-          >
-
-          <img
-            id="airbet88-popup-img-next"
-            src=""
-            alt=""
-            aria-hidden="true"
-          >
-
-        </div>
-
-        <button
-          type="button"
-          class="airbet88-nav"
-          id="airbet88-next"
-          aria-label="Gambar berikutnya"
-        >
-          ›
-        </button>
-
-        <div
-          id="airbet88-dots"
-        ></div>
-
-      </div>
-
-      <!-- ==========================
-           TITLE
-      =========================== -->
-
-      <div id="airbet88-title">
-        AIRBET88.com SENSASIONAL
-      </div>
-
-      <!-- ==========================
-           GIF
-      =========================== -->
-
-      <div class="airbet88-gif-row">
-
-        <div class="airbet88-gif-box">
-
-          <img
-            src="https://media.tenor.com/ky4lyYmnHlsAAAAM/starlight-princess-slot-inces.gif"
-            alt="Starlight Princess"
-          >
-
-        </div>
-
-        <div class="airbet88-gif-box">
-
-          <img
-            src="https://www.image2url.com/r2/default/files/1788196760940-99c297a4-6cae-456d-add1-b529fab5c6ed.webp"
-            alt="AIRBET88.com SENSASIONAL"
-          >
-
-        </div>
-
-        <div class="airbet88-gif-box">
-
-          <img
-            src="https://imgcdn.it.com/knb2zump50st9c6kzrne/VIP_AI88/lucky_neko.webp"
-            alt="Lucky Neko"
-          >
-
-        </div>
-
-      </div>
-
-      <!-- ==========================
-           BUTTON
-      =========================== -->
-
-      <div class="airbet88-btn-row">
-
-        <a
-          class="airbet88-btn"
-          href="https://linknewshortener-ai88.com/telegramrotator"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          HUBUNGI ADMIN
-        </a>
-
-        <a
-          class="airbet88-btn"
-          href="https://linknewshortener-ai88.com/airbet88vip"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          MEMBERSHIP VIP
-        </a>
-
-        <button
-          type="button"
-          class="airbet88-ok"
-          id="airbet88-ok"
-        >
-          OK
-        </button>
-
-      </div>
-
-    `;
-
-    document.body.appendChild(
-      overlay
-    );
-
-    document.body.appendChild(
-      popup
-    );
-
-    /* ==============================
-       ELEMENT
-    ============================== */
-
-    const sliderImage =
-      document.getElementById(
-        "airbet88-popup-img"
-      );
-
-    const nextSliderImage =
-      document.getElementById(
-        "airbet88-popup-img-next"
-      );
-
-    const dotsContainer =
-      document.getElementById(
-        "airbet88-dots"
-      );
-
-    /* ==============================
-       DOT SLIDER
-    ============================== */
-
-    function renderDots() {
-      dotsContainer.innerHTML =
-        "";
-
-      IMG.forEach(
-        function (
-          _,
-          imageIndex
-        ) {
-
-          const dot =
-            document.createElement(
-              "button"
-            );
-
-          dot.type =
-            "button";
-
-          dot.className =
-            "airbet88-dot" +
-            (
-              imageIndex ===
-              currentIndex
-                ? " active"
-                : ""
-            );
-
-          dot.setAttribute(
-            "aria-label",
-            "Tampilkan gambar " +
-              (
-                imageIndex +
-                1
-              )
-          );
-
-          dot.addEventListener(
-            "click",
-            function () {
-
-              changeSlide(
-                imageIndex
-              );
-
-              resetSliderTimer();
-
-            }
-          );
-
-          dotsContainer.appendChild(
-            dot
-          );
-        }
-      );
-    }
-
-    /* ==============================
-       CHANGE SLIDE
-    ============================== */
-
-    function changeSlide(
-      newIndex
-    ) {
-
-      if (
-        changingSlide ||
-        newIndex < 0 ||
-        newIndex >= IMG.length ||
-        newIndex === currentIndex
-      ) {
-        return;
-      }
-
-      changingSlide =
-        true;
-
-      nextSliderImage
-        .classList
-        .remove(
-          "slide-rtl"
-        );
-
-      sliderImage
-        .classList
-        .remove(
-          "slide-old-left"
-        );
-
-      /* ==============================
-         SET GAMBAR BERIKUTNYA
-      ============================== */
-
-      nextSliderImage.src =
-        IMG[newIndex];
-
-      nextSliderImage.alt =
-        "AIRBET88.com SENSASIONAL Slide " +
-        (
-          newIndex +
-          1
-        );
-
-      nextSliderImage.style.transition =
-        "none";
-
-      nextSliderImage.style.opacity =
-        "0";
-
-      nextSliderImage.style.transform =
-        "translateX(100%)";
-
-      /* paksa reflow */
-
-      void nextSliderImage.offsetWidth;
-
-      nextSliderImage.style.transition =
-        "";
-
-      nextSliderImage.style.opacity =
-        "";
-
-      nextSliderImage.style.transform =
-        "";
-
-      /* ==============================
-         MULAI ANIMASI
-      ============================== */
-
-      sliderImage.classList.add(
-        "slide-old-left"
-      );
-
-      nextSliderImage.classList.add(
-        "slide-rtl"
-      );
-
-      let finished =
-        false;
-
-      /* ==============================
-         FINISH
-      ============================== */
-
-      function finishSlide() {
-        if (finished) {
-          return;
-        }
-
-        finished =
-          true;
-
-        nextSliderImage
-          .removeEventListener(
-            "transitionend",
-            handleTransitionEnd
-          );
-
-        currentIndex =
-          newIndex;
-
-        sliderImage.src =
-          IMG[currentIndex];
-
-        sliderImage.alt =
-          "AIRBET88.com SENSASIONAL Slide " +
-          (
-            currentIndex +
-            1
-          );
-
-        sliderImage
-          .classList
-          .remove(
-            "slide-old-left"
-          );
-
-        sliderImage.style.transition =
-          "none";
-
-        sliderImage.style.opacity =
-          "1";
-
-        sliderImage.style.transform =
-          "translateX(0)";
-
-        requestAnimationFrame(
-          function () {
-
-            requestAnimationFrame(
-              function () {
-
-                nextSliderImage.style.transition =
-                  "none";
-
-                nextSliderImage
-                  .classList
-                  .remove(
-                    "slide-rtl"
-                  );
-
-                nextSliderImage.style.opacity =
-                  "0";
-
-                nextSliderImage.style.transform =
-                  "translateX(100%)";
-
-                nextSliderImage.src =
-                  "";
-
-                nextSliderImage.alt =
-                  "";
-
-                requestAnimationFrame(
-                  function () {
-
-                    sliderImage.style.transition =
-                      "";
-
-                    sliderImage.style.opacity =
-                      "";
-
-                    sliderImage.style.transform =
-                      "";
-
-                    nextSliderImage.style.transition =
-                      "";
-
-                    nextSliderImage.style.opacity =
-                      "";
-
-                    nextSliderImage.style.transform =
-                      "";
-
-                    changingSlide =
-                      false;
-
-                  }
-                );
-              }
-            );
-          }
-        );
-
-        renderDots();
-      }
-
-      /* ==============================
-         TRANSITION END
-      ============================== */
-
-      function handleTransitionEnd(
-        event
-      ) {
-
-        if (
-          event.target ===
-            nextSliderImage &&
-          event.propertyName ===
-            "transform"
-        ) {
-          finishSlide();
-        }
-
-      }
-
-      nextSliderImage
-        .addEventListener(
-          "transitionend",
-          handleTransitionEnd
-        );
-
-      /* FALLBACK */
-
-      window.setTimeout(
-        finishSlide,
-        900
-      );
-    }
-
-    /* ==============================
-       NEXT
-    ============================== */
-
-    function nextSlide() {
-      const nextIndex =
-        (
-          currentIndex +
-          1
-        ) %
-        IMG.length;
-
-      changeSlide(
-        nextIndex
-      );
-    }
-
-    /* ==============================
-       PREVIOUS
-    ============================== */
-
-    function previousSlide() {
-      const previousIndex =
-        (
-          currentIndex -
-          1 +
-          IMG.length
-        ) %
-        IMG.length;
-
-      changeSlide(
-        previousIndex
-      );
-    }
-
-    /* ==============================
-       TIMER
-    ============================== */
-
-    function startSliderTimer() {
-      clearInterval(
-        sliderTimer
-      );
-
-      sliderTimer =
-        setInterval(
-          function () {
-
-            nextSlide();
-
-          },
-          SLIDER_INTERVAL
-        );
-    }
-
-    function resetSliderTimer() {
-      startSliderTimer();
-    }
-
-    /* ==============================
-       CLOSE POPUP
-    ============================== */
-
-    function closePopup() {
-      clearInterval(
-        sliderTimer
-      );
-
-      popup
-        .classList
-        .add(
-          "spin-out"
-        );
-
-      overlay
-        .classList
-        .add(
-          "fade-out"
-        );
-
-      /* SIMPAN DELAY 1 JAM */
-
-      localStorage.setItem(
-        DELAY_KEY,
-        String(
-          Date.now()
-        )
-      );
-
-      setTimeout(
-        function () {
-
-          popup.remove();
-
-          overlay.remove();
-
-          popupCreated =
-            false;
-
-        },
-        860
-      );
-    }
-
-    /* ==============================
-       EVENT NEXT
-    ============================== */
-
-    document
-      .getElementById(
-        "airbet88-next"
-      )
-      .addEventListener(
-        "click",
-        function () {
-
-          nextSlide();
-
-          resetSliderTimer();
-
-        }
-      );
-
-    /* ==============================
-       EVENT PREVIOUS
-    ============================== */
-
-    document
-      .getElementById(
-        "airbet88-prev"
-      )
-      .addEventListener(
-        "click",
-        function () {
-
-          previousSlide();
-
-          resetSliderTimer();
-
-        }
-      );
-
-    /* ==============================
-       EVENT CLOSE
-    ============================== */
-
-    document
-      .getElementById(
-        "airbet88-close"
-      )
-      .addEventListener(
-        "click",
-        closePopup
-      );
-
-    /* ==============================
-       EVENT OK
-    ============================== */
-
-    document
-      .getElementById(
-        "airbet88-ok"
-      )
-      .addEventListener(
-        "click",
-        closePopup
-      );
-
-    /* ==============================
-       INIT SLIDER
-    ============================== */
-
-    renderDots();
-
-    startSliderTimer();
-  }
-
-  /* ==============================
-     INIT
-  ============================== */
+  } catch (e) {}
 
   function init() {
-    let retry =
-      0;
+    if (document.getElementById(POPUP_ID)) return;
 
-    const checkBody =
-      setInterval(
-        function () {
+    // CSS otomatis dimasukkan melalui JavaScript
+    if (!document.getElementById(STYLE_ID)) {
+      const style = document.createElement("style");
+      style.id = STYLE_ID;
 
-          createPopup();
+      style.textContent = `
+        #${OVERLAY_ID},
+        #${POPUP_ID},
+        #${POPUP_ID} * {
+          box-sizing: border-box;
+        }
 
-          retry++;
+        #${OVERLAY_ID} {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483646;
+          background: rgba(0,9,12,.85);
+        }
 
-          if (
-            popupCreated ||
-            retry >= 40
-          ) {
+        #${POPUP_ID} {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483647;
+          display: grid;
+          place-items: center;
+          padding: 12px;
+          overflow-y: auto;
+          font-family: Arial, sans-serif;
+          color: #f6fffd;
+        }
 
-            clearInterval(
-              checkBody
-            );
+        #${POPUP_ID} .popup-box {
+          position: relative;
+          width: min(100%,430px);
+          max-height: calc(100dvh - 24px);
+          overflow-y: auto;
+          padding: 13px;
+          border: 1px solid rgba(232,201,134,.55);
+          border-radius: 22px;
+          background: linear-gradient(
+            160deg,
+            #154544,
+            #092c2e 48%,
+            #041617
+          );
+          box-shadow: 0 18px 55px #000a;
+          scrollbar-width: thin;
+          animation: popupAppear .3s ease;
+        }
 
+        @keyframes popupAppear {
+          from {
+            opacity: 0;
+            transform: translateY(12px) scale(.97);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        #${POPUP_ID} .brand {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 7px 35px 14px 5px;
+          text-align: center;
+        }
+
+        #${POPUP_ID} .brand-icon {
+          display: grid;
+          place-items: center;
+          flex: none;
+          width: 40px;
+          height: 40px;
+          border: 1px solid #e8c986;
+          border-radius: 12px;
+          background: #102f30;
+          color: #e8c986;
+          font-size: 25px;
+        }
+
+        #${POPUP_ID} .brand-name {
+          font-size: 23px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          line-height: 1.1;
+        }
+
+        #${POPUP_ID} .brand-name span {
+          color: #e8c986;
+        }
+
+        #${POPUP_ID} .brand-sub {
+          margin-top: 5px;
+          color: #b7dcd6;
+          font-size: 10px;
+          letter-spacing: 1px;
+        }
+
+        #${POPUP_ID} .close {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          z-index: 5;
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          border: 1px solid #e8c986;
+          border-radius: 50%;
+          background: #133b3b;
+          color: white;
+          font-size: 22px;
+          cursor: pointer;
+        }
+
+        #${POPUP_ID} .slider {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 1080 / 1350;
+          overflow: hidden;
+          border: 1px solid #e8c98670;
+          border-radius: 14px;
+          background: #031314;
+        }
+
+        #${POPUP_ID} .slide-image {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+        }
+
+        #${POPUP_ID} .nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 34px;
+          height: 40px;
+          padding: 0;
+          border: 1px solid #ffffff60;
+          border-radius: 10px;
+          background: #092d2ddd;
+          color: white;
+          font-size: 26px;
+          cursor: pointer;
+        }
+
+        #${POPUP_ID} .prev {
+          left: 8px;
+        }
+
+        #${POPUP_ID} .next {
+          right: 8px;
+        }
+
+        #${POPUP_ID} .dots {
+          display: flex;
+          justify-content: center;
+          gap: 7px;
+          margin: 11px 0;
+        }
+
+        #${POPUP_ID} .dot {
+          width: 8px;
+          height: 8px;
+          padding: 0;
+          border: 0;
+          border-radius: 10px;
+          background: #647d79;
+          cursor: pointer;
+        }
+
+        #${POPUP_ID} .dot.active {
+          width: 23px;
+          background: #e8c986;
+        }
+
+        #${POPUP_ID} .promo-title {
+          margin: 2px 0 12px;
+          text-align: center;
+          color: #e8c986;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 1.5px;
+        }
+
+        #${POPUP_ID} .actions {
+          padding: 12px;
+          border: 1px solid #ffffff20;
+          border-radius: 14px;
+          background: #ffffff08;
+        }
+
+        #${POPUP_ID} .actions-heading {
+          margin: 0 0 10px;
+          text-align: center;
+          color: #c8e7e2;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+        }
+
+        #${POPUP_ID} .btn-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 9px;
+        }
+
+        #${POPUP_ID} .btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          min-height: 43px;
+          padding: 9px 6px;
+          border: 1px solid #e8c9868c;
+          border-radius: 10px;
+          background: linear-gradient(
+            135deg,
+            #1c7771,
+            #0b4544
+          );
+          color: white;
+          text-decoration: none;
+          text-align: center;
+          font-size: 11px;
+          font-weight: 800;
+          transition: filter .2s;
+        }
+
+        #${POPUP_ID} .btn:hover {
+          filter: brightness(1.15);
+        }
+
+        #${POPUP_ID} .btn .icon {
+          font-size: 17px;
+          color: #e8c986;
+        }
+
+        #${POPUP_ID} .dismiss {
+          display: block;
+          width: 100%;
+          margin-top: 9px;
+          padding: 10px;
+          border: 1px solid #ffffff25;
+          border-radius: 10px;
+          background: #061f20;
+          color: #bdd8d3;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        @media (max-height: 650px) {
+          #${POPUP_ID} .popup-box {
+            padding: 8px;
           }
 
-        },
-        500
-      );
+          #${POPUP_ID} .brand {
+            padding-bottom: 7px;
+          }
+
+          #${POPUP_ID} .actions {
+            padding: 7px;
+          }
+
+          #${POPUP_ID} .dots {
+            margin: 6px 0;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          #${POPUP_ID} .popup-box {
+            animation: none;
+          }
+        }
+      `;
+
+      document.head.appendChild(style);
+    }
+
+    // Overlay
+    const overlay = document.createElement("div");
+    overlay.id = OVERLAY_ID;
+
+    // Popup
+    const popup = document.createElement("div");
+    popup.id = POPUP_ID;
+
+    popup.innerHTML = `
+      <section class="popup-box"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Promo AIRBET88">
+
+        <button class="close" type="button"
+          aria-label="Tutup popup">×</button>
+
+        <header class="brand">
+          <div class="brand-icon">⌕</div>
+
+          <div>
+            <div class="brand-name">
+              AYOCEK<span>.COM</span>
+            </div>
+
+            <div class="brand-sub">
+              Alat pencarian brand favoritmu
+            </div>
+          </div>
+        </header>
+
+        <div class="slider">
+          <img
+            class="slide-image"
+            src="${IMG[0]}"
+            alt="Promo AIRBET88 slide 1"
+            decoding="async"
+          >
+
+          <button class="nav prev" type="button"
+            aria-label="Gambar sebelumnya">‹</button>
+
+          <button class="nav next" type="button"
+            aria-label="Gambar berikutnya">›</button>
+        </div>
+
+        <div class="dots"></div>
+
+        <div class="promo-title">
+          AIRBET88.COM · SENSASIONAL
+        </div>
+
+        <div class="actions">
+          <p class="actions-heading">
+            PILIH LAYANAN KAMU
+          </p>
+
+          <div class="btn-row">
+            <a class="btn"
+              href="https://linknewshortener-ai88.com/airbet88vip"
+              target="_blank"
+              rel="noopener noreferrer">
+              <span class="icon">♛</span>
+              MEMBERSHIP VIP
+            </a>
+
+            <a class="btn"
+              href="https://linknewshortener-ai88.com/telegramrotator"
+              target="_blank"
+              rel="noopener noreferrer">
+              <span class="icon">✆</span>
+              HUBUNGI ADMIN
+            </a>
+          </div>
+
+          <button class="dismiss" type="button">
+            TUTUP
+          </button>
+        </div>
+      </section>
+    `;
+
+    document.body.append(overlay, popup);
+
+    // Slider
+    const img = popup.querySelector(".slide-image");
+    const dots = popup.querySelector(".dots");
+
+    let currentIndex = 0;
+    let sliderTimer = null;
+
+    IMG.forEach((_, i) => {
+      const dot = document.createElement("button");
+
+      dot.type = "button";
+      dot.className = "dot";
+      dot.setAttribute("aria-label", `Slide ${i + 1}`);
+
+      dot.addEventListener("click", () => {
+        showSlide(i);
+        restartSlider();
+      });
+
+      dots.appendChild(dot);
+    });
+
+    function showSlide(i) {
+      currentIndex = (i + IMG.length) % IMG.length;
+
+      img.src = IMG[currentIndex];
+      img.alt = `Promo AIRBET88 slide ${currentIndex + 1}`;
+
+      [...dots.children].forEach((dot, j) => {
+        const active = j === currentIndex;
+
+        dot.classList.toggle("active", active);
+        dot.setAttribute("aria-current", String(active));
+      });
+    }
+
+    function restartSlider() {
+      clearInterval(sliderTimer);
+
+      if (IMG.length > 1) {
+        sliderTimer = setInterval(() => {
+          showSlide(currentIndex + 1);
+        }, SLIDER_INTERVAL);
+      }
+    }
+
+    function closePopup() {
+      clearInterval(sliderTimer);
+
+      popup.remove();
+      overlay.remove();
+
+      try {
+        localStorage.setItem(
+          DELAY_KEY,
+          String(Date.now())
+        );
+      } catch (e) {}
+    }
+
+    // Navigasi
+    popup.querySelector(".prev").addEventListener("click", () => {
+      showSlide(currentIndex - 1);
+      restartSlider();
+    });
+
+    popup.querySelector(".next").addEventListener("click", () => {
+      showSlide(currentIndex + 1);
+      restartSlider();
+    });
+
+    // Tutup popup
+    popup.querySelector(".close").addEventListener(
+      "click",
+      closePopup
+    );
+
+    popup.querySelector(".dismiss").addEventListener(
+      "click",
+      closePopup
+    );
+
+    overlay.addEventListener("click", closePopup);
+
+    // Mulai slider
+    showSlide(0);
+    restartSlider();
   }
 
-  /* ==============================
-     DOCUMENT READY
-  ============================== */
-
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-
+  // Jalankan setelah DOM siap
+  if (document.readyState === "loading") {
     document.addEventListener(
       "DOMContentLoaded",
       init,
-      {
-        once: true
-      }
+      { once: true }
     );
-
   } else {
-
     init();
-
   }
-
 })();
