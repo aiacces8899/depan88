@@ -1,4 +1,3 @@
-
 "use strict";
 
 (function () {
@@ -8,7 +7,7 @@
 
   const IMG = [
     "https://plcl.me/images/zazKN.jpg",
-    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg
+    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg"
   ];
 
   const CONFIG = {
@@ -17,31 +16,34 @@
     storageKey: "popup_delay_1h",
     popupId: "airbet88-popup",
     overlayId: "airbet88-popup-overlay",
-    styleId: "airbet88-popup-style"
+    styleId: "airbet88-popup-style",
+    ayocekUrl: "https://linknewshortener-ai88.com/searchingairbet88",
+    vipUrl: "https://linknewshortener-ai88.com/airbet88vip",
+    adminUrl: "https://linknewshortener-ai88.com/telegramrotator"
   };
 
-  // Hanya tampil di homepage
+  // Hanya tampil di homepage atau alamat yang mengandung "home".
   const path = location.pathname
     .replace(/\/+$/, "")
     .toLowerCase();
 
-  if (path !== "" && path !== "/" && !path.includes("home")) {
-    return;
+  if (path !== "" && !path.includes("home")) return;
+
+  function isOnCooldown() {
+    try {
+      const lastClosed = Number(
+        localStorage.getItem(CONFIG.storageKey) || 0
+      );
+
+      return lastClosed > 0 &&
+        Date.now() - lastClosed < CONFIG.delay;
+    } catch (error) {
+      return false;
+    }
   }
 
-  // Cek jeda popup 1 jam
-  try {
-    const lastClosed = Number(
-      localStorage.getItem(CONFIG.storageKey) || 0
-    );
-
-    if (lastClosed && Date.now() - lastClosed < CONFIG.delay) {
-      return;
-    }
-  } catch (e) {}
-
   // ==========================================
-  // CSS POPUP
+  // CSS
   // ==========================================
 
   const CSS = `
@@ -63,6 +65,7 @@
       inset: 0;
       z-index: 2147483647;
       display: flex;
+      align-items: center;
       align-items: safe center;
       justify-content: center;
       padding: 12px;
@@ -74,6 +77,7 @@
     #${CONFIG.popupId} .popup-box {
       position: relative;
       width: min(100%, 430px);
+      max-height: calc(100vh - 24px);
       max-height: calc(100dvh - 24px);
       overflow-y: auto;
       padding: 12px;
@@ -85,24 +89,25 @@
         #092b2c 45%,
         #041819 100%
       );
-      box-shadow: 0 18px 50px rgba(0,0,0,.6);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
       scrollbar-width: thin;
       scrollbar-color: #4b7770 transparent;
-      animation: ayoPopupIn .3s ease both;
+      animation: airbet88PopupIn .3s ease both;
     }
 
-    @keyframes ayoPopupIn {
+    @keyframes airbet88PopupIn {
       from {
         opacity: 0;
         transform: translateY(10px) scale(.98);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
       }
     }
 
-    /* HEADER */
+    /* HEADER AYOCEK.COM */
 
     #${CONFIG.popupId} .brand {
       display: flex;
@@ -112,6 +117,20 @@
       min-height: 57px;
       margin-bottom: 12px;
       padding: 2px 35px 2px 4px;
+    }
+
+    #${CONFIG.popupId} .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: inherit;
+      text-decoration: none;
+      transition: filter .2s;
+    }
+
+    #${CONFIG.popupId} .brand-link:hover {
+      filter: brightness(1.15);
     }
 
     #${CONFIG.popupId} .brand-icon {
@@ -146,7 +165,7 @@
       letter-spacing: .6px;
     }
 
-    /* CLOSE */
+    /* TOMBOL CLOSE */
 
     #${CONFIG.popupId} .close {
       position: absolute;
@@ -174,7 +193,7 @@
       width: 100%;
       aspect-ratio: 1080 / 1350;
       overflow: hidden;
-      border: 1px solid rgba(232,201,134,.45);
+      border: 1px solid rgba(232, 201, 134, .45);
       border-radius: 13px;
       background: #041819;
     }
@@ -199,9 +218,9 @@
       height: 36px;
       padding: 0;
       transform: translateY(-50%);
-      border: 1px solid rgba(255,255,255,.25);
+      border: 1px solid rgba(255, 255, 255, .25);
       border-radius: 8px;
-      background: rgba(0,25,27,.65);
+      background: rgba(0, 25, 27, .65);
       color: #fff;
       font-size: 22px;
       line-height: 1;
@@ -210,7 +229,7 @@
     }
 
     #${CONFIG.popupId} .nav:hover {
-      background: rgba(11,80,76,.9);
+      background: rgba(11, 80, 76, .9);
     }
 
     #${CONFIG.popupId} .prev {
@@ -248,7 +267,7 @@
       background: #e8c986;
     }
 
-    /* TITLE */
+    /* JUDUL */
 
     #${CONFIG.popupId} .promo-title {
       margin: 0 0 12px;
@@ -259,13 +278,13 @@
       letter-spacing: 1.5px;
     }
 
-    /* ACTIONS */
+    /* TOMBOL LAYANAN */
 
     #${CONFIG.popupId} .actions {
       padding: 12px;
-      border: 1px solid rgba(255,255,255,.13);
+      border: 1px solid rgba(255, 255, 255, .13);
       border-radius: 14px;
-      background: rgba(255,255,255,.035);
+      background: rgba(255, 255, 255, .035);
     }
 
     #${CONFIG.popupId} .actions-heading {
@@ -279,7 +298,7 @@
 
     #${CONFIG.popupId} .btn-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 9px;
     }
 
@@ -291,13 +310,9 @@
       min-width: 0;
       min-height: 43px;
       padding: 9px 5px;
-      border: 1px solid rgba(232,201,134,.65);
+      border: 1px solid rgba(232, 201, 134, .65);
       border-radius: 11px;
-      background: linear-gradient(
-        135deg,
-        #1b7771,
-        #0b4544
-      );
+      background: linear-gradient(135deg, #1b7771, #0b4544);
       color: #fff;
       text-decoration: none;
       text-align: center;
@@ -317,15 +332,13 @@
       font-size: 16px;
     }
 
-    /* BUTTON TUTUP */
-
     #${CONFIG.popupId} .dismiss {
       display: block;
       width: 100%;
       min-height: 39px;
       margin-top: 9px;
       padding: 9px;
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid rgba(255, 255, 255, .16);
       border-radius: 10px;
       background: #061f20;
       color: #bdd8d3;
@@ -336,6 +349,12 @@
 
     #${CONFIG.popupId} .dismiss:hover {
       background: #103536;
+    }
+
+    #${CONFIG.popupId} a:focus-visible,
+    #${CONFIG.popupId} button:focus-visible {
+      outline: 2px solid #e8c986;
+      outline-offset: 3px;
     }
 
     /* MOBILE */
@@ -351,8 +370,11 @@
       }
 
       #${CONFIG.popupId} .brand {
-        gap: 8px;
         margin-bottom: 9px;
+      }
+
+      #${CONFIG.popupId} .brand-link {
+        gap: 8px;
       }
 
       #${CONFIG.popupId} .brand-icon {
@@ -401,8 +423,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      #${CONFIG.popupId} *,
-      #${CONFIG.popupId} {
+      #${CONFIG.popupId},
+      #${CONFIG.popupId} * {
         animation: none !important;
         transition: none !important;
       }
@@ -410,13 +432,13 @@
   `;
 
   // ==========================================
-  // INITIALIZE POPUP
+  // INITIALIZE
   // ==========================================
 
   function init() {
     if (document.getElementById(CONFIG.popupId)) return;
+    if (isOnCooldown()) return;
 
-    // Inject CSS satu kali
     if (!document.getElementById(CONFIG.styleId)) {
       const style = document.createElement("style");
       style.id = CONFIG.styleId;
@@ -424,20 +446,22 @@
       document.head.appendChild(style);
     }
 
-    // Overlay
+    const previousFocus = document.activeElement;
+
     const overlay = document.createElement("div");
     overlay.id = CONFIG.overlayId;
+    overlay.setAttribute("aria-hidden", "true");
 
-    // Popup
     const popup = document.createElement("div");
     popup.id = CONFIG.popupId;
 
     popup.innerHTML = `
-      <section class="popup-box"
+      <section
+        class="popup-box"
         role="dialog"
         aria-modal="true"
-        aria-label="Promo AIRBET88">
-
+        aria-label="Promo AIRBET88"
+      >
         <button
           class="close"
           type="button"
@@ -445,17 +469,25 @@
         >×</button>
 
         <header class="brand">
-          <div class="brand-icon">⌕</div>
+          <a
+            class="brand-link"
+            href="${CONFIG.ayocekUrl}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Buka AYOCEK.COM di tab baru"
+          >
+            <span class="brand-icon" aria-hidden="true">⌕</span>
 
-          <div>
-            <div class="brand-name">
-              AYOCEK<span>.COM</span>
-            </div>
+            <div>
+              <div class="brand-name">
+                AYOCEK<span>.COM</span>
+              </div>
 
-            <div class="brand-sub">
-              Alat pencarian brand favoritmu
+              <div class="brand-sub">
+                Alat pencarian brand favoritmu
+              </div>
             </div>
-          </div>
+          </a>
         </header>
 
         <div class="slider">
@@ -481,9 +513,11 @@
           >›</button>
         </div>
 
-        <div class="dots"
-          aria-label="Navigasi gambar promosi">
-        </div>
+        <div
+          class="dots"
+          role="group"
+          aria-label="Navigasi gambar promosi"
+        ></div>
 
         <div class="promo-title">
           AIRBET88.COM · SENSASIONAL
@@ -497,21 +531,21 @@
           <div class="btn-row">
             <a
               class="btn"
-              href="https://linknewshortener-ai88.com/airbet88vip"
+              href="${CONFIG.vipUrl}"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span class="icon">♛</span>
+              <span class="icon" aria-hidden="true">♛</span>
               MEMBERSHIP VIP
             </a>
 
             <a
               class="btn"
-              href="https://linknewshortener-ai88.com/telegramrotator"
+              href="${CONFIG.adminUrl}"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span class="icon">✆</span>
+              <span class="icon" aria-hidden="true">✆</span>
               HUBUNGI ADMIN
             </a>
           </div>
@@ -531,12 +565,12 @@
 
     const image = popup.querySelector(".slide-image");
     const dots = popup.querySelector(".dots");
+    const closeButton = popup.querySelector(".close");
 
     let currentIndex = 0;
     let timer = null;
     let closed = false;
 
-    // Membuat indikator slider
     IMG.forEach((_, index) => {
       const dot = document.createElement("button");
 
@@ -555,25 +589,23 @@
       dots.appendChild(dot);
     });
 
-    // Menampilkan gambar
     function showSlide(index) {
       currentIndex = (index + IMG.length) % IMG.length;
 
-      if (image.src !== IMG[currentIndex]) {
+      if (image.getAttribute("src") !== IMG[currentIndex]) {
         image.src = IMG[currentIndex];
       }
 
       image.alt = `Promo AIRBET88 slide ${currentIndex + 1}`;
 
-      Array.from(dots.children).forEach((dot, index) => {
-        const active = index === currentIndex;
+      Array.from(dots.children).forEach((dot, dotIndex) => {
+        const active = dotIndex === currentIndex;
 
         dot.classList.toggle("active", active);
         dot.setAttribute("aria-current", String(active));
       });
     }
 
-    // Timer slider
     function restartSlider() {
       clearInterval(timer);
 
@@ -585,7 +617,7 @@
     }
 
     // ==========================================
-    // CLOSE POPUP
+    // TUTUP POPUP
     // ==========================================
 
     function closePopup() {
@@ -593,6 +625,8 @@
 
       closed = true;
       clearInterval(timer);
+
+      document.removeEventListener("keydown", handleKeydown);
 
       popup.remove();
       overlay.remove();
@@ -602,33 +636,62 @@
           CONFIG.storageKey,
           String(Date.now())
         );
-      } catch (e) {}
+      } catch (error) {
+        // Popup tetap dapat ditutup jika storage diblokir.
+      }
+
+      if (previousFocus && previousFocus.isConnected) {
+        previousFocus.focus();
+      }
+    }
+
+    function handleKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePopup();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(
+        popup.querySelectorAll(
+          'a[href], button:not([disabled]), [tabindex="0"]'
+        )
+      ).filter((element) => element.getClientRects().length > 0);
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey) {
+        if (active === first || !popup.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !popup.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     // ==========================================
     // EVENTS
     // ==========================================
 
-    popup.querySelector(".prev").addEventListener(
-      "click",
-      () => {
-        showSlide(currentIndex - 1);
-        restartSlider();
-      }
-    );
+    popup.querySelector(".prev").addEventListener("click", () => {
+      showSlide(currentIndex - 1);
+      restartSlider();
+    });
 
-    popup.querySelector(".next").addEventListener(
-      "click",
-      () => {
-        showSlide(currentIndex + 1);
-        restartSlider();
-      }
-    );
+    popup.querySelector(".next").addEventListener("click", () => {
+      showSlide(currentIndex + 1);
+      restartSlider();
+    });
 
-    popup.querySelector(".close").addEventListener(
-      "click",
-      closePopup
-    );
+    closeButton.addEventListener("click", closePopup);
 
     popup.querySelector(".dismiss").addEventListener(
       "click",
@@ -637,9 +700,16 @@
 
     overlay.addEventListener("click", closePopup);
 
-    // Mulai slider
+    // Klik area gelap di luar kotak popup.
+    popup.addEventListener("click", (event) => {
+      if (event.target === popup) closePopup();
+    });
+
+    document.addEventListener("keydown", handleKeydown);
+
     showSlide(0);
     restartSlider();
+    closeButton.focus({ preventScroll: true });
   }
 
   // ==========================================
@@ -647,11 +717,9 @@
   // ==========================================
 
   if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      init,
-      { once: true }
-    );
+    document.addEventListener("DOMContentLoaded", init, {
+      once: true
+    });
   } else {
     init();
   }
