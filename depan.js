@@ -7,7 +7,8 @@
   // ==========================================
 
   const IMG = [
-    "https://plcl.me/images/zazKN.jpg"
+    "https://plcl.me/images/zazKN.jpg",
+    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg
   ];
 
   const CONFIG = {
