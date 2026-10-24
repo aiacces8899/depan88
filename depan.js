@@ -1,13 +1,11 @@
 "use strict";
 
 (function () {
-  // ==========================================
-  // KONFIGURASI
-  // ==========================================
-
   const IMG = [
-    "https://plcl.me/images/zazKN.jpg",
-    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg"
+    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg",
+    "https://www.image2url.com/r2/default/images/1792805579769-2ba37971-e783-48bd-be45-3db313b1bc2f.jpg",
+    "https://www.image2url.com/r2/default/images/1792805627613-bd32c429-7207-49eb-b198-914de4b62796.jpg",
+    "https://www.image2url.com/r2/default/images/1792805691974-ea119217-9ec5-4eff-a4fa-0acb694faa4c.jpg"
   ];
 
   const CONFIG = {
@@ -22,10 +20,8 @@
     adminUrl: "https://linknewshortener-ai88.com/telegramrotator"
   };
 
-  // Hanya tampil di homepage atau alamat yang mengandung "home".
-  const path = location.pathname
-    .replace(/\/+$/, "")
-    .toLowerCase();
+  // Tampil di homepage atau alamat yang mengandung "home".
+  const path = location.pathname.replace(/\/+$/, "").toLowerCase();
 
   if (path !== "" && !path.includes("home")) return;
 
@@ -35,16 +31,14 @@
         localStorage.getItem(CONFIG.storageKey) || 0
       );
 
-      return lastClosed > 0 &&
-        Date.now() - lastClosed < CONFIG.delay;
+      return (
+        lastClosed > 0 &&
+        Date.now() - lastClosed < CONFIG.delay
+      );
     } catch (error) {
       return false;
     }
   }
-
-  // ==========================================
-  // CSS
-  // ==========================================
 
   const CSS = `
     #${CONFIG.popupId},
@@ -85,29 +79,14 @@
       border-radius: 22px;
       background: linear-gradient(
         160deg,
-        #164745 0%,
+        #164745,
         #092b2c 45%,
-        #041819 100%
+        #041819
       );
       box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
       scrollbar-width: thin;
       scrollbar-color: #4b7770 transparent;
-      animation: airbet88PopupIn .3s ease both;
     }
-
-    @keyframes airbet88PopupIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px) scale(.98);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* HEADER AYOCEK.COM */
 
     #${CONFIG.popupId} .brand {
       display: flex;
@@ -126,11 +105,6 @@
       min-width: 0;
       color: inherit;
       text-decoration: none;
-      transition: filter .2s;
-    }
-
-    #${CONFIG.popupId} .brand-link:hover {
-      filter: brightness(1.15);
     }
 
     #${CONFIG.popupId} .brand-icon {
@@ -165,8 +139,6 @@
       letter-spacing: .6px;
     }
 
-    /* TOMBOL CLOSE */
-
     #${CONFIG.popupId} .close {
       position: absolute;
       top: 12px;
@@ -186,8 +158,6 @@
       cursor: pointer;
     }
 
-    /* IMAGE SLIDER */
-
     #${CONFIG.popupId} .slider {
       position: relative;
       width: 100%;
@@ -206,7 +176,18 @@
       object-position: center;
     }
 
-    /* NAVIGASI */
+    #${CONFIG.popupId} .slide-image[hidden],
+    #${CONFIG.popupId} .load-status[hidden] {
+      display: none;
+    }
+
+    #${CONFIG.popupId} .load-status {
+      position: absolute;
+      inset: 45% 35px auto;
+      text-align: center;
+      font-size: 13px;
+      color: #b7dcd6;
+    }
 
     #${CONFIG.popupId} .nav {
       position: absolute;
@@ -225,11 +206,6 @@
       font-size: 22px;
       line-height: 1;
       cursor: pointer;
-      transition: background .2s;
-    }
-
-    #${CONFIG.popupId} .nav:hover {
-      background: rgba(11, 80, 76, .9);
     }
 
     #${CONFIG.popupId} .prev {
@@ -239,8 +215,6 @@
     #${CONFIG.popupId} .next {
       right: 5px;
     }
-
-    /* DOT SLIDER */
 
     #${CONFIG.popupId} .dots {
       display: flex;
@@ -259,15 +233,12 @@
       border-radius: 10px;
       background: #647d79;
       cursor: pointer;
-      transition: width .2s, background .2s;
     }
 
     #${CONFIG.popupId} .dot.active {
       width: 22px;
       background: #e8c986;
     }
-
-    /* JUDUL */
 
     #${CONFIG.popupId} .promo-title {
       margin: 0 0 12px;
@@ -277,8 +248,6 @@
       font-weight: 900;
       letter-spacing: 1.5px;
     }
-
-    /* TOMBOL LAYANAN */
 
     #${CONFIG.popupId} .actions {
       padding: 12px;
@@ -319,11 +288,6 @@
       font-size: 11px;
       font-weight: 800;
       line-height: 1.3;
-      transition: filter .2s;
-    }
-
-    #${CONFIG.popupId} .btn:hover {
-      filter: brightness(1.15);
     }
 
     #${CONFIG.popupId} .btn .icon {
@@ -347,17 +311,11 @@
       cursor: pointer;
     }
 
-    #${CONFIG.popupId} .dismiss:hover {
-      background: #103536;
-    }
-
     #${CONFIG.popupId} a:focus-visible,
     #${CONFIG.popupId} button:focus-visible {
       outline: 2px solid #e8c986;
       outline-offset: 3px;
     }
-
-    /* MOBILE */
 
     @media (max-width: 390px) {
       #${CONFIG.popupId} {
@@ -421,19 +379,7 @@
         padding: 8px;
       }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      #${CONFIG.popupId},
-      #${CONFIG.popupId} * {
-        animation: none !important;
-        transition: none !important;
-      }
-    }
   `;
-
-  // ==========================================
-  // INITIALIZE
-  // ==========================================
 
   function init() {
     if (document.getElementById(CONFIG.popupId)) return;
@@ -482,7 +428,6 @@
               <div class="brand-name">
                 AYOCEK<span>.COM</span>
               </div>
-
               <div class="brand-sub">
                 Alat pencarian brand favoritmu
               </div>
@@ -491,9 +436,13 @@
         </header>
 
         <div class="slider">
+          <span class="load-status" role="status">
+            Memuat gambar…
+          </span>
+
           <img
             class="slide-image"
-            src="${IMG[0]}"
+            hidden
             alt="Promo AIRBET88 slide 1"
             decoding="async"
             width="1080"
@@ -524,9 +473,7 @@
         </div>
 
         <div class="actions">
-          <p class="actions-heading">
-            PILIH LAYANAN KAMU
-          </p>
+          <p class="actions-heading">PILIH LAYANAN KAMU</p>
 
           <div class="btn-row">
             <a
@@ -559,17 +506,19 @@
 
     document.body.append(overlay, popup);
 
-    // ==========================================
-    // SLIDER
-    // ==========================================
+    let image = popup.querySelector(".slide-image");
 
-    const image = popup.querySelector(".slide-image");
     const dots = popup.querySelector(".dots");
     const closeButton = popup.querySelector(".close");
+    const status = popup.querySelector(".load-status");
 
-    let currentIndex = 0;
+    let currentIndex = -1;
     let timer = null;
+    let loadTimer = null;
+    let pending = null;
     let closed = false;
+
+    const failed = new Set();
 
     IMG.forEach((_, index) => {
       const dot = document.createElement("button");
@@ -589,42 +538,110 @@
       dots.appendChild(dot);
     });
 
+    function cancelLoad() {
+      clearTimeout(loadTimer);
+
+      if (!pending) return;
+
+      pending.onload = null;
+      pending.onerror = null;
+      pending.removeAttribute("src");
+      pending = null;
+    }
+
+    // Gambar dimuat satu per satu, bukan sekaligus.
     function showSlide(index) {
+      if (closed || pending) return;
+
       currentIndex = (index + IMG.length) % IMG.length;
 
-      if (image.getAttribute("src") !== IMG[currentIndex]) {
-        image.src = IMG[currentIndex];
-      }
+      if (failed.has(currentIndex)) return;
 
-      image.alt = `Promo AIRBET88 slide ${currentIndex + 1}`;
+      const targetIndex = currentIndex;
+      const next = new Image(1080, 1350);
 
-      Array.from(dots.children).forEach((dot, dotIndex) => {
-        const active = dotIndex === currentIndex;
+      pending = next;
 
-        dot.classList.toggle("active", active);
-        dot.setAttribute("aria-current", String(active));
-      });
+      next.className = "slide-image";
+      next.decoding = "async";
+      next.alt = `Promo AIRBET88 slide ${targetIndex + 1}`;
+
+      next.onload = () => {
+        if (closed || pending !== next) return;
+
+        clearTimeout(loadTimer);
+
+        next.onload = null;
+        next.onerror = null;
+        pending = null;
+
+        image.replaceWith(next);
+        image = next;
+
+        status.hidden = true;
+
+        Array.from(dots.children).forEach((dot, i) => {
+          const active = i === targetIndex;
+
+          dot.classList.toggle("active", active);
+          dot.setAttribute("aria-current", String(active));
+        });
+
+        restartSlider();
+      };
+
+      next.onerror = () => {
+        if (closed || pending !== next) return;
+
+        failed.add(targetIndex);
+        cancelLoad();
+
+        if (failed.size === IMG.length) {
+          clearTimeout(timer);
+
+          if (image.hidden) {
+            status.textContent =
+              "Gambar belum tersedia. Silakan coba lagi nanti.";
+          }
+        } else {
+          restartSlider();
+        }
+      };
+
+      loadTimer = setTimeout(() => {
+        if (next.onerror) next.onerror();
+      }, 15000);
+
+      next.src = IMG[targetIndex];
     }
 
     function restartSlider() {
-      clearInterval(timer);
+      clearTimeout(timer);
 
-      if (IMG.length > 1 && !closed) {
-        timer = setInterval(() => {
+      if (
+        !closed &&
+        !document.hidden &&
+        failed.size < IMG.length
+      ) {
+        timer = setTimeout(() => {
           showSlide(currentIndex + 1);
+          restartSlider();
         }, CONFIG.interval);
       }
     }
-
-    // ==========================================
-    // TUTUP POPUP
-    // ==========================================
 
     function closePopup() {
       if (closed) return;
 
       closed = true;
-      clearInterval(timer);
+
+      clearTimeout(timer);
+      cancelLoad();
+
+      document.removeEventListener(
+        "visibilitychange",
+        restartSlider
+      );
 
       document.removeEventListener("keydown", handleKeydown);
 
@@ -637,7 +654,7 @@
           String(Date.now())
         );
       } catch (error) {
-        // Popup tetap dapat ditutup jika storage diblokir.
+        // Popup tetap bisa ditutup jika storage diblokir.
       }
 
       if (previousFocus && previousFocus.isConnected) {
@@ -677,10 +694,6 @@
       }
     }
 
-    // ==========================================
-    // EVENTS
-    // ==========================================
-
     popup.querySelector(".prev").addEventListener("click", () => {
       showSlide(currentIndex - 1);
       restartSlider();
@@ -698,23 +711,22 @@
       closePopup
     );
 
-    overlay.addEventListener("click", closePopup);
-
-    // Klik area gelap di luar kotak popup.
     popup.addEventListener("click", (event) => {
       if (event.target === popup) closePopup();
     });
 
     document.addEventListener("keydown", handleKeydown);
 
+    document.addEventListener(
+      "visibilitychange",
+      restartSlider
+    );
+
     showSlide(0);
     restartSlider();
+
     closeButton.focus({ preventScroll: true });
   }
-
-  // ==========================================
-  // DOCUMENT READY
-  // ==========================================
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init, {
