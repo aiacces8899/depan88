@@ -2,7 +2,7 @@
     "use strict";
 
     const BANNER_IMAGE_URL =
-        "https://www.image2url.com/r2/default/images/1787742101261-9f6b5573-158c-4330-9f22-0ad180fc3e66.jpg";
+        "https://www.image2url.com/r2/default/images/1792834668610-fde50979-efc6-4236-a3af-49cf4662b8d9.png";
 
     const BANNER_LINK_URL =
         "https://linknewshortener-ai88.com/guide-betting-game  ";
