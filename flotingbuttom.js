@@ -6,14 +6,14 @@
   const QUICK_ACCESS_ID = "airbet88-quick-access";
 
   // ========== GIF TOMBOL UTAMA ==========
+  const QUICK_ACCESS_IMG =
+    "https://www.image2url.com/r2/default/gifs/1793158998627-b94df388-c7c0-4b02-b3e3-4ad85744530c.gif";
+
   const VIP_BTN_IMG =
     "https://www.image2url.com/r2/default/gifs/1792492627419-af1dc9ac-2831-422c-9771-15fd5f729f92.gif";
 
   const BTN_88_IMG =
     "https://www.image2url.com/r2/default/gifs/1792492662123-130e226a-7644-45a3-be41-33ba35aafbb8.gif";
-
-  const QUICK_ACCESS_IMG =
-    "https://www.image2url.com/r2/default/gifs/1793158998627-b94df388-c7c0-4b02-b3e3-4ad85744530c.gif";
 
   // ========== GAMBAR SUBMENU ==========
   const VIP_IMG = "https://plcl.me/images/oTwFW.png";
@@ -22,6 +22,9 @@
   const AYOCEK_IMG = "https://plcl.me/images/mgvak.png";
 
   // ========== LINK ==========
+  const LINK_QUICK_ACCESS =
+    "https://linknewshortener-ai88.com/quickacces";
+
   const LINK_VIP =
     "https://linknewshortener-ai88.com/airbet88vip";
 
@@ -33,9 +36,6 @@
 
   const LINK_AYOCEK =
     "https://linknewshortener-ai88.com/searchingairbet88";
-
-  const LINK_QUICK_ACCESS =
-    "https://linknewshortener-ai88.com/quickacces";
 
   // ========== STYLE ==========
   function injectStyle() {
@@ -49,13 +49,11 @@
 
     style.textContent = `
       #${CONTAINER_ID},
-      #${CONTAINER_ID} *,
-      #${QUICK_ACCESS_ID},
-      #${QUICK_ACCESS_ID} * {
+      #${CONTAINER_ID} * {
         box-sizing: border-box;
       }
 
-      /* Posisi tombol kiri */
+      /* Semua tombol berada di kiri bawah */
       #${CONTAINER_ID} {
         position: fixed;
         left: 12px;
@@ -68,9 +66,9 @@
         font-family: "Segoe UI", Arial, sans-serif;
       }
 
-      /* Tombol utama dan Quick Access */
-      #${CONTAINER_ID} .airbet88-circle,
-      #${QUICK_ACCESS_ID} {
+      /* Tombol utama menggunakan GIF */
+      #${CONTAINER_ID} .airbet88-circle {
+        position: static;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -92,16 +90,7 @@
         -webkit-tap-highlight-color: transparent;
       }
 
-      /* Posisi tombol kanan */
-      #${QUICK_ACCESS_ID} {
-        position: fixed;
-        right: 12px;
-        bottom: 80px;
-        z-index: 2147483000;
-      }
-
-      #${CONTAINER_ID} .airbet88-circle img,
-      #${QUICK_ACCESS_ID} img {
+      #${CONTAINER_ID} .airbet88-circle img {
         display: block;
         width: 100%;
         height: 100%;
@@ -111,14 +100,12 @@
         pointer-events: none;
       }
 
-      #${CONTAINER_ID} .airbet88-circle:hover,
-      #${QUICK_ACCESS_ID}:hover {
+      #${CONTAINER_ID} .airbet88-circle:hover {
         transform: scale(1.1);
       }
 
       #${CONTAINER_ID} .airbet88-circle:focus-visible,
-      #${CONTAINER_ID} .airbet88-img-btn:focus-visible,
-      #${QUICK_ACCESS_ID}:focus-visible {
+      #${CONTAINER_ID} .airbet88-img-btn:focus-visible {
         outline: 2px solid #d4af37;
         outline-offset: 4px;
       }
@@ -175,8 +162,7 @@
 
       @media (prefers-reduced-motion: reduce) {
         #${CONTAINER_ID} .airbet88-circle,
-        #${CONTAINER_ID} .airbet88-img-btn,
-        #${QUICK_ACCESS_ID} {
+        #${CONTAINER_ID} .airbet88-img-btn {
           transition: none;
         }
 
@@ -187,14 +173,40 @@
     `;
   }
 
-  // ========== TOMBOL KIRI ==========
-  function createLeftButtons() {
-    if (document.getElementById(CONTAINER_ID)) return;
+  // ========== BUAT TOMBOL ==========
+  function createButtons() {
+    /*
+     * Hapus widget versi sebelumnya agar tombol Quick Access
+     * yang tadinya di kanan tidak tertinggal.
+     */
+    const oldContainer = document.getElementById(CONTAINER_ID);
+    if (oldContainer) oldContainer.remove();
+
+    const oldQuickAccess = document.getElementById(QUICK_ACCESS_ID);
+    if (oldQuickAccess) oldQuickAccess.remove();
+
+    injectStyle();
 
     const container = document.createElement("div");
     container.id = CONTAINER_ID;
 
     container.innerHTML = `
+      <!-- QUICK ACCESS: DI ATAS TOMBOL VIP -->
+      <a
+        id="${QUICK_ACCESS_ID}"
+        href="${LINK_QUICK_ACCESS}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="airbet88-circle"
+        aria-label="Buka Quick Access di tab baru"
+      >
+        <img
+          src="${QUICK_ACCESS_IMG}"
+          alt=""
+          draggable="false"
+        >
+      </a>
+
       <!-- TOMBOL VIP -->
       <button
         type="button"
@@ -204,17 +216,28 @@
         aria-controls="airbet88-vip-menu"
         aria-expanded="false"
       >
-        <img src="${VIP_BTN_IMG}" alt="" draggable="false">
+        <img
+          src="${VIP_BTN_IMG}"
+          alt=""
+          draggable="false"
+        >
       </button>
 
-      <div class="airbet88-submenu" id="airbet88-vip-menu">
+      <div
+        class="airbet88-submenu"
+        id="airbet88-vip-menu"
+      >
         <a
           href="${LINK_VIP}"
           target="_blank"
           rel="noopener noreferrer"
           class="airbet88-img-btn"
         >
-          <img src="${VIP_IMG}" alt="VIP" draggable="false">
+          <img
+            src="${VIP_IMG}"
+            alt="VIP"
+            draggable="false"
+          >
         </a>
       </div>
 
@@ -227,17 +250,28 @@
         aria-controls="airbet88-88-menu"
         aria-expanded="false"
       >
-        <img src="${BTN_88_IMG}" alt="" draggable="false">
+        <img
+          src="${BTN_88_IMG}"
+          alt=""
+          draggable="false"
+        >
       </button>
 
-      <div class="airbet88-submenu" id="airbet88-88-menu">
+      <div
+        class="airbet88-submenu"
+        id="airbet88-88-menu"
+      >
         <a
           href="${LINK_RTP}"
           target="_blank"
           rel="noopener noreferrer"
           class="airbet88-img-btn"
         >
-          <img src="${RTP_IMG}" alt="RTP" draggable="false">
+          <img
+            src="${RTP_IMG}"
+            alt="RTP"
+            draggable="false"
+          >
         </a>
 
         <a
@@ -246,7 +280,11 @@
           rel="noopener noreferrer"
           class="airbet88-img-btn"
         >
-          <img src="${BUKTI_JP_IMG}" alt="BUKTI JP" draggable="false">
+          <img
+            src="${BUKTI_JP_IMG}"
+            alt="BUKTI JP"
+            draggable="false"
+          >
         </a>
 
         <a
@@ -255,13 +293,18 @@
           rel="noopener noreferrer"
           class="airbet88-img-btn"
         >
-          <img src="${AYOCEK_IMG}" alt="ayocek.com" draggable="false">
+          <img
+            src="${AYOCEK_IMG}"
+            alt="ayocek.com"
+            draggable="false"
+          >
         </a>
       </div>
     `;
 
     document.body.appendChild(container);
 
+    // Hanya satu submenu yang terbuka dalam satu waktu.
     function toggleMenu(menuId) {
       const selectedMenu = container.querySelector("#" + menuId);
       if (!selectedMenu) return;
@@ -291,41 +334,12 @@
     });
   }
 
-  // ========== TOMBOL QUICK ACCESS KANAN ==========
-  function createQuickAccess() {
-    if (document.getElementById(QUICK_ACCESS_ID)) return;
-
-    const button = document.createElement("a");
-    button.id = QUICK_ACCESS_ID;
-    button.href = LINK_QUICK_ACCESS;
-    button.target = "_blank";
-    button.rel = "noopener noreferrer";
-    button.setAttribute(
-      "aria-label",
-      "Buka Quick Access di tab baru"
-    );
-
-    const image = document.createElement("img");
-    image.src = QUICK_ACCESS_IMG;
-    image.alt = "";
-    image.draggable = false;
-
-    button.appendChild(image);
-    document.body.appendChild(button);
-  }
-
   // ========== INIT ==========
-  function init() {
-    injectStyle();
-    createLeftButtons();
-    createQuickAccess();
-  }
-
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, {
+    document.addEventListener("DOMContentLoaded", createButtons, {
       once: true
     });
   } else {
-    init();
+    createButtons();
   }
 })();
