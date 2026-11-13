@@ -19,7 +19,7 @@
   const VIP_IMG = "https://plcl.me/images/oTwFW.png";
   const RTP_IMG = "https://plcl.me/images/aYyJa.png";
   const BUKTI_JP_IMG = "https://plcl.me/images/W7UAH.png";
-  const AYOCEK_IMG = "https://plcl.me/images/mgvak.png";
+  const AYOCEK_IMG = "https://www.image2url.com/r2/default/images/1794561053909-ee19eacb-02c4-4f31-8de6-a46118f9eebf.webp";
 
   // ========== LINK ==========
   const LINK_QUICK_ACCESS =
@@ -35,7 +35,7 @@
     "https://linknewshortener-ai88.com/bukti-jp";
 
   const LINK_AYOCEK =
-    "https://linknewshortener-ai88.com/searchingairbet88";
+    "https://linknewshortener-ai88.com/point-anti-rungkad";
 
   // ========== STYLE ==========
   function injectStyle() {
