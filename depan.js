@@ -2,10 +2,10 @@
 
 (function () {
   const IMG = [
-    "https://www.image2url.com/r2/default/images/1792742533701-c95f63ab-b16a-4021-bc10-505b681a8e8b.jpg",
+    "https://www.image2url.com/r2/default/images/1794560917702-dddf833f-cc05-4f28-8137-c1c842be8144.jpg",
     "https://www.image2url.com/r2/default/images/1792805579769-2ba37971-e783-48bd-be45-3db313b1bc2f.jpg",
     "https://www.image2url.com/r2/default/images/1792805627613-bd32c429-7207-49eb-b198-914de4b62796.jpg",
-    "https://www.image2url.com/r2/default/images/1792805691974-ea119217-9ec5-4eff-a4fa-0acb694faa4c.jpg"
+    "https://www.image2url.com/r2/default/images/1794560761779-13612146-c773-4f19-b6db-94867c98a535.jpg"
   ];
 
   const CONFIG = {
