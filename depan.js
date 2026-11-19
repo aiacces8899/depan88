@@ -2,939 +2,758 @@
 (function () {
   "use strict";
 
+  /* ==========================================
+     AIRBET88 INSTALL APPS - VERSION 12
+     SILVER PREMIUM POPUP
+     PWA + APK + BUKTI JP
+     NO SECOND PROMOTION POPUP
+  ========================================== */
+
   const CONFIG = {
+    rootId: "airbet88-install-v12",
+    styleId: "airbet88-install-v12-style",
+
+    storageKey: "airbet88-install-v12-closed",
     cooldown: 60 * 60 * 1000,
-    storageKey: "airbet88_popup_v6_closed",
-    interval: 7000,
-    rootId: "airbet88-glass-root",
-    styleId: "airbet88-glass-style",
 
-    pwa: "https://linkairbet88pro20.xyz/download-lite-apps",
+    // LINK PWA TERBARU
+    pwa: "https://linknewshortener-ai88.com/pwa",
+
+    // LINK DOWNLOAD APK
     apk: "https://dk4jo88env94i.cloudfront.net/airbet88.apk",
-    ayocek: "https://linknewshortener-ai88.com/searchingairbet88",
-    vip: "https://linknewshortener-ai88.com/airbet88vip",
-    admin: "https://linknewshortener-ai88.com/telegramrotator",
-    quick: "https://linknewshortener-ai88.com/quickacces",
 
+    // LOGO UTAMA AIRBET88
     logo: "https://www.image2url.com/r2/default/images/1794970107198-cf9d9028-92cb-41bc-ad06-c3769fd0a861.png",
 
-    images: [
-      "https://www.image2url.com/r2/default/images/1794560917702-dddf833f-cc05-4f28-8137-c1c842be8144.jpg",
-      "https://www.image2url.com/r2/default/images/1792805579769-2ba37971-e783-48bd-be45-3db313b1bc2f.jpg",
-      "https://www.image2url.com/r2/default/images/1792805627613-bd32c429-7207-49eb-b198-914de4b62796.jpg",
-      "https://www.image2url.com/r2/default/images/1794560761779-13612146-c773-4f19-b6db-94867c98a535.jpg"
-    ]
+    // LOGO PWA
+    logoPwa: "https://www.image2url.com/r2/default/images/1795075258609-60f3880b-cb0d-4108-8d44-7fceeb6362c6.png",
+
+    // LOGO APK
+    logoApk: "https://www.image2url.com/r2/default/images/1793081025495-e9d0f056-7179-4594-84ff-372fc034df81.png",
+
+    // BANNER BUKTI JP
+    bannerJP: "https://plcl.me/images/W7UAH.png",
+
+    // LINK BUKTI JP
+    buktiJP: "https://linknewshortener-ai88.com/bukti-jp"
   };
 
-  // Sama seperti script awal: homepage saja.
-  const path = location.pathname.replace(/\/+$/, "").toLowerCase();
+  /* ==========================================
+     HOMEPAGE ONLY
+  ========================================== */
+
+  const path = location.pathname
+    .replace(/\/+$/, "")
+    .toLowerCase();
+
   if (path && !path.includes("home")) return;
 
-  if (document.getElementById(CONFIG.rootId)) return;
+  if (document.getElementById(CONFIG.rootId)) {
+    return;
+  }
+
+  /* ==========================================
+     COOLDOWN 1 JAM
+  ========================================== */
 
   try {
-    const last = Number(localStorage.getItem(CONFIG.storageKey) || 0);
-    if (last && Date.now() - last < CONFIG.cooldown) return;
-  } catch (_) {}
+    const last = Number(
+      localStorage.getItem(CONFIG.storageKey) || 0
+    );
+
+    if (
+      last > 0 &&
+      Date.now() - last < CONFIG.cooldown
+    ) {
+      return;
+    }
+  } catch (e) {}
+
+  /* ==========================================
+     DETEKSI IPHONE
+  ========================================== */
+
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (
+      navigator.platform === "MacIntel" &&
+      navigator.maxTouchPoints > 1
+    );
+
+  /* ==========================================
+     CSS POPUP
+  ========================================== */
 
   const CSS = `
-    #${CONFIG.rootId}, #${CONFIG.rootId} * {
+    #${CONFIG.rootId},
+    #${CONFIG.rootId} * {
       box-sizing: border-box;
     }
 
     #${CONFIG.rootId} {
-      --mint: #8cebdc;
-      --gold: #ead3a0;
-      --white: #f6fffd;
-      --muted: #b9cecb;
       position: fixed;
       inset: 0;
       z-index: 2147483647;
-      display: grid;
-      place-items: center;
-      padding: 12px;
-      background: rgba(0, 15, 18, .79);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      font-family: -apple-system, BlinkMacSystemFont,
-        "Segoe UI", Arial, sans-serif;
-      color: var(--white);
-      animation: abFade .3s ease;
-    }
 
-    #${CONFIG.rootId} [hidden] {
-      display: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 12px;
+
+      background: rgba(0, 0, 0, .62);
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      animation: abFade .25s ease;
     }
 
     #${CONFIG.rootId} button,
     #${CONFIG.rootId} a {
-      -webkit-tap-highlight-color: transparent;
       font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
     }
 
     #${CONFIG.rootId} button {
       cursor: pointer;
     }
 
-    #${CONFIG.rootId} button:focus-visible,
-    #${CONFIG.rootId} a:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 3px;
-    }
+    /* MAIN MODAL */
 
     #${CONFIG.rootId} .ab-modal {
       position: relative;
-      width: min(100%, 440px);
+
+      width: 100%;
+      max-width: 445px;
+
       max-height: calc(100vh - 24px);
       max-height: calc(100dvh - 24px);
+
       overflow-y: auto;
       overscroll-behavior: contain;
-      padding: 22px 18px;
-      border: 1px solid rgba(255,255,255,.52);
-      border-radius: 27px;
-      background:
-        linear-gradient(145deg,
-          rgba(41, 89, 89, .95),
-          rgba(9, 34, 39, .97) 70%);
+
+      padding: 20px 18px 18px;
+
+      border-radius: 17px;
+      border: 1px solid #ffffffa8;
+
+      background: #eeeeee;
+
+      color: #111;
+
       box-shadow:
-        inset 0 1px rgba(255,255,255,.35),
-        0 30px 90px rgba(0,0,0,.55);
-      animation: abEnter .45s cubic-bezier(.2,1,.3,1);
+        0 20px 60px rgba(0, 0, 0, .4);
+
+      animation: abPop .35s ease;
+
       scrollbar-width: thin;
-      scrollbar-color: #668b88 transparent;
     }
+
+    /* CLOSE BUTTON */
 
     #${CONFIG.rootId} .ab-close {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      width: 35px;
-      height: 35px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.4);
-      background: rgba(255,255,255,.15);
-      color: white;
-      font-size: 23px;
-      line-height: 1;
+
+      top: 13px;
+      right: 13px;
+
+      width: 32px;
+      height: 32px;
+
+      display: grid;
+      place-items: center;
+
+      border: none;
+      background: transparent;
+
+      color: #a6a6a6;
+
+      font-size: 25px;
+      font-weight: 800;
+
       z-index: 3;
     }
 
-    #${CONFIG.rootId} .ab-eyebrow {
-      color: var(--gold);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-align: center;
+    #${CONFIG.rootId} .ab-close:hover {
+      color: #555;
     }
 
-    #${CONFIG.rootId} .ab-title {
-      margin: 9px 38px 7px;
-      text-align: center;
-      font-size: 23px;
-      font-weight: 850;
-      line-height: 1.2;
-    }
+    /* HEADER */
 
-    #${CONFIG.rootId} .ab-desc {
-      margin: 0 auto 20px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.7;
-      max-width: 310px;
-    }
+    #${CONFIG.rootId} .ab-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-    #${CONFIG.rootId} .ab-install {
-      background:
-        linear-gradient(150deg,
-          rgba(250,253,253,.98),
-          rgba(226,233,235,.98));
-      color: #172b30;
-      border-radius: 22px;
-      padding: 25px 17px 17px;
-    }
+      gap: 9px;
 
-    #${CONFIG.rootId} .ab-install .ab-title {
-      color: #172b30;
-      font-size: 18px;
       margin-bottom: 17px;
     }
 
-    #${CONFIG.rootId} .ab-install .ab-close {
-      background: #e4edf2;
-      border-color: #bdd4e1;
-      color: #708d9c;
-    }
-
-    #${CONFIG.rootId} .ab-choice {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      width: 100%;
-      min-height: 122px;
-      padding: 16px 13px;
-      margin-bottom: 13px;
-      border: 1px solid #bec8cb;
-      border-radius: 17px;
-      background: linear-gradient(135deg,#e5e8e9,#d1d6d8);
-      text-align: left;
-      color: #182a2e;
-      overflow: hidden;
-      transition: transform .2s, box-shadow .2s;
-    }
-
-    #${CONFIG.rootId} .ab-choice:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 25px rgba(0,0,0,.14);
-    }
-
-    #${CONFIG.rootId} .ab-choice:active,
-    #${CONFIG.rootId} .ab-button:active {
-      transform: scale(.98);
-    }
-
-    #${CONFIG.rootId} .ab-choice-icon {
-      flex: 0 0 85px;
-      height: 91px;
-      border: 1px solid #bac6c9;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      align-content: center;
-      gap: 4px;
-      background: linear-gradient(140deg,#f1f3f3,#dce3e4);
-      color: #609c9e;
-      font-size: 32px;
-    }
-
-    #${CONFIG.rootId} .ab-choice-icon small {
-      font-size: 17px;
-      font-weight: 900;
-    }
-
-    #${CONFIG.rootId} .ab-choice-copy {
-      min-width: 0;
-    }
-
-    #${CONFIG.rootId} .ab-choice-copy strong {
-      display: block;
-      color: #538f94;
-      font-size: 15px;
-      margin-bottom: 7px;
-    }
-
-    #${CONFIG.rootId} .ab-choice-copy span {
-      display: block;
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    #${CONFIG.rootId} .ab-ribbon {
-      position: absolute;
-      right: -35px;
-      top: 12px;
-      transform: rotate(39deg);
-      background: #ff6900;
-      color: white;
-      padding: 5px 36px;
-      font-size: 10px;
-      font-weight: 800;
-    }
-
-    #${CONFIG.rootId} .ab-textbutton {
-      display: block;
-      margin: 10px auto;
-      padding: 8px;
-      background: transparent;
-      border: none;
-      color: #397c82;
-      text-decoration: underline;
-      font-size: 12px;
-    }
-
-    #${CONFIG.rootId} .ab-button {
-      width: 100%;
-      min-height: 47px;
-      padding: 12px 15px;
-      border: 1px solid rgba(255,255,255,.4);
-      border-radius: 15px;
-      background: linear-gradient(120deg,#b5f8e8,#64c9be);
-      color: #082e32;
-      font-size: 13px;
-      font-weight: 850;
-      transition: transform .2s, filter .2s;
-    }
-
-    #${CONFIG.rootId} .ab-button:hover {
-      filter: brightness(1.07);
-    }
-
-    #${CONFIG.rootId} .ab-skip {
-      background: #e2f1ef;
-      border-color: #bdd9d5;
-      color: #376e70;
-      margin-top: 10px;
-    }
-
-    #${CONFIG.rootId} .ab-guide {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      padding: 70px 21px 22px;
-      overflow-y: auto;
-      border-radius: 22px;
-      background: linear-gradient(150deg,#184349,#081f27);
-      color: white;
-      animation: abEnter .3s ease;
-    }
-
-    #${CONFIG.rootId} .ab-back {
-      position: absolute;
-      left: 18px;
-      top: 17px;
-      padding: 9px 13px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.3);
-      background: rgba(255,255,255,.13);
-      color: white;
-      font-size: 13px;
-    }
-
-    #${CONFIG.rootId} .ab-guide h3 {
-      margin: 8px 0 16px;
-      color: var(--gold);
-      font-size: 23px;
-      line-height: 1.25;
-    }
-
-    #${CONFIG.rootId} .ab-guide p,
-    #${CONFIG.rootId} .ab-guide li {
-      font-size: 13px;
-      line-height: 1.8;
-      color: #dcebe8;
-    }
-
-    #${CONFIG.rootId} .ab-guide ol {
-      padding-left: 22px;
-    }
-
-    #${CONFIG.rootId} .ab-guide li {
-      margin-bottom: 7px;
-    }
-
-    #${CONFIG.rootId} .ab-guide-card {
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      border-radius: 15px;
-      padding: 13px;
-      margin-bottom: 12px;
-    }
-
-    #${CONFIG.rootId} .ab-guide-card strong {
-      color: #b8f8e9;
-    }
-
-    #${CONFIG.rootId} .ab-guide-card p {
-      margin: 7px 0 0;
-    }
-
     #${CONFIG.rootId} .ab-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 65px;
-      margin: 0 43px 15px;
-      text-align: center;
-    }
+      display: block;
 
-    #${CONFIG.rootId} .ab-logo img {
-      max-width: 100%;
-      max-height: 64px;
+      max-width: 195px;
+      max-height: 70px;
+
+      width: auto;
+      height: auto;
+
       object-fit: contain;
     }
 
-    #${CONFIG.rootId} .ab-logo-fallback {
-      color: var(--gold);
-      font-weight: 900;
-      font-size: 23px;
-    }
+    #${CONFIG.rootId} .ab-title {
+      margin: 0;
 
-    #${CONFIG.rootId} .ab-slider {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1080 / 1350;
-      border-radius: 18px;
-      overflow: hidden;
-      background: #092b31;
-      border: 1px solid rgba(255,255,255,.35);
-    }
+      color: #111;
 
-    #${CONFIG.rootId} .ab-slide {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-    }
-
-    #${CONFIG.rootId} .ab-fallback {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-      text-align: center;
-      background: linear-gradient(145deg,#155b59,#061e29);
-      color: white;
-    }
-
-    #${CONFIG.rootId} .ab-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 35px;
-      height: 46px;
-      border: 1px solid rgba(255,255,255,.4);
-      border-radius: 12px;
-      background: rgba(0,25,30,.7);
-      color: white;
-      font-size: 27px;
-    }
-
-    #${CONFIG.rootId} .ab-prev { left: 8px; }
-    #${CONFIG.rootId} .ab-next { right: 8px; }
-
-    #${CONFIG.rootId} .ab-dots {
-      display: flex;
-      justify-content: center;
-      gap: 7px;
-      margin: 13px 0;
-    }
-
-    #${CONFIG.rootId} .ab-dot {
-      width: 8px;
-      height: 8px;
-      padding: 0;
-      border: none;
-      border-radius: 20px;
-      background: #789794;
-    }
-
-    #${CONFIG.rootId} .ab-dot.active {
-      width: 25px;
-      background: var(--gold);
-    }
-
-    #${CONFIG.rootId} .ab-actions {
-      display: grid;
-      grid-template-columns: repeat(2,minmax(0,1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    #${CONFIG.rootId} .ab-actions a {
-      display: grid;
-      place-items: center;
-      min-height: 52px;
-      padding: 10px 6px;
-      border: 1px solid rgba(255,255,255,.42);
-      border-radius: 15px;
-      background: rgba(255,255,255,.12);
-      color: white;
-      font-size: 11px;
+      font-size: 20px;
       font-weight: 800;
+
       text-align: center;
-      text-decoration: none;
-      transition: background .2s, transform .2s;
     }
 
-    #${CONFIG.rootId} .ab-actions a:hover {
-      background: rgba(255,255,255,.24);
+    /* TRUST ICONS */
+
+    #${CONFIG.rootId} .ab-trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 9px;
+      flex-wrap: wrap;
+
+      margin-top: 5px;
+    }
+
+    #${CONFIG.rootId} .ab-trust-item {
+      display: flex;
+      align-items: center;
+
+      gap: 5px;
+
+      padding: 6px 9px;
+
+      border: 1px solid #d0d0d0;
+      border-radius: 20px;
+
+      background: #e4e4e4;
+
+      color: #5d9299;
+
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    #${CONFIG.rootId} .ab-trust-item svg {
+      width: 15px;
+      height: 15px;
+
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* APPLICATION CARDS */
+
+    #${CONFIG.rootId} .ab-option {
+      position: relative;
+
+      display: flex;
+      align-items: center;
+
+      width: 100%;
+      min-height: 137px;
+
+      gap: 18px;
+      padding: 17px;
+
+      margin-bottom: 14px;
+
+      border: 1px solid #b9b9b9;
+      border-radius: 15px;
+
+      background: #d8d8d8;
+
+      color: #111;
+
+      text-align: left;
+      overflow: hidden;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        border-color .2s ease;
+    }
+
+    #${CONFIG.rootId} .ab-option:hover {
+      transform: translateY(-2px);
+
+      border-color: #78a7ad;
+
+      box-shadow:
+        0 9px 20px rgba(0, 0, 0, .12);
+    }
+
+    #${CONFIG.rootId} .ab-option:active {
+      transform: scale(.98);
+    }
+
+    /* APP ICON */
+
+    #${CONFIG.rootId} .ab-icon {
+      flex: 0 0 100px;
+
+      width: 100px;
+      height: 100px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid #bdbdbd;
+      border-radius: 16px;
+
+      background: #e5e5e5;
+
+      overflow: hidden;
+    }
+
+    #${CONFIG.rootId} .ab-icon img {
+      display: block;
+
+      width: 80px;
+      height: 80px;
+
+      object-fit: contain;
+    }
+
+    /* APP TEXT */
+
+    #${CONFIG.rootId} .ab-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #${CONFIG.rootId} .ab-name {
+      display: block;
+
+      margin-bottom: 8px;
+
+      color: #5b9ba2;
+
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    #${CONFIG.rootId} .ab-description {
+      display: block;
+
+      color: #222;
+
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.65;
+    }
+
+    /* RECOMMENDED RIBBON */
+
+    #${CONFIG.rootId} .ab-ribbon {
+      position: absolute;
+
+      top: 13px;
+      right: -36px;
+
+      transform: rotate(40deg);
+
+      padding: 5px 38px;
+
+      background: #ff6900;
+      color: #fff;
+
+      font-size: 10px;
+      font-weight: 800;
+
+      box-shadow:
+        0 3px 8px rgba(0, 0, 0, .15);
+    }
+
+    /* BUKTI JP */
+
+    #${CONFIG.rootId} .ab-jp {
+      display: block;
+
+      width: 100%;
+
+      margin-top: 5px;
+
+      border-radius: 12px;
+      overflow: hidden;
+
+      border: 1px solid #c5c5c5;
+
+      background: #dedede;
+
+      transition: transform .2s ease;
+    }
+
+    #${CONFIG.rootId} .ab-jp:hover {
       transform: translateY(-2px);
     }
 
-    #${CONFIG.rootId} .ab-dismiss {
-      background: rgba(255,255,255,.12);
-      color: white;
-      border-color: rgba(255,255,255,.45);
-      font-size: 15px;
+    #${CONFIG.rootId} .ab-jp img {
+      display: block;
+
+      width: 100%;
+      height: auto;
+
+      object-fit: contain;
     }
 
+    /* FOOTER */
+
     #${CONFIG.rootId} .ab-footer {
-      margin-top: 16px;
+      margin-top: 13px;
+
       text-align: center;
-      color: #c3d5d2;
-      font-size: 11px;
+
+      color: #888;
+
+      font-size: 10px;
     }
+
+    /* ANIMATIONS */
 
     @keyframes abFade {
       from { opacity: 0; }
       to { opacity: 1; }
     }
 
-    @keyframes abEnter {
+    @keyframes abPop {
       from {
         opacity: 0;
-        transform: translateY(30px) scale(.95);
+        transform: translateY(20px) scale(.95);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
       }
     }
 
+    /* MOBILE RESPONSIVE */
+
     @media (max-width: 390px) {
       #${CONFIG.rootId} .ab-modal {
-        padding: 17px 12px;
-        border-radius: 21px;
+        padding: 17px 12px 14px;
       }
 
-      #${CONFIG.rootId} .ab-choice {
-        gap: 10px;
-        padding: 12px 10px;
+      #${CONFIG.rootId} .ab-option {
+        min-height: 115px;
+        gap: 12px;
+        padding: 12px;
       }
 
-      #${CONFIG.rootId} .ab-choice-icon {
-        flex-basis: 69px;
-        height: 77px;
+      #${CONFIG.rootId} .ab-icon {
+        flex-basis: 76px;
+        width: 76px;
+        height: 76px;
       }
 
-      #${CONFIG.rootId} .ab-choice-copy span {
+      #${CONFIG.rootId} .ab-icon img {
+        width: 65px;
+        height: 65px;
+      }
+
+      #${CONFIG.rootId} .ab-name {
+        font-size: 15px;
+      }
+
+      #${CONFIG.rootId} .ab-description {
         font-size: 11px;
       }
 
-      #${CONFIG.rootId} .ab-actions a {
+      #${CONFIG.rootId} .ab-trust {
+        gap: 5px;
+      }
+
+      #${CONFIG.rootId} .ab-trust-item {
         font-size: 10px;
+        padding: 5px 7px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       #${CONFIG.rootId},
       #${CONFIG.rootId} * {
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
+        animation: none !important;
+        transition: none !important;
       }
     }
   `;
 
-  let root;
-  let install;
-  let promo;
-  let guide;
-  let currentIndex = 0;
-  let slideTimer = null;
-  let loadToken = 0;
-  let previousFocus = null;
-  let currentStage = "install";
+  /* ==========================================
+     CREATE POPUP
+  ========================================== */
 
-  const isIOS =
-    /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" &&
-      navigator.maxTouchPoints > 1);
-
-  const $ = id => root.querySelector("#" + id);
-
-  function create() {
-    if (document.getElementById(CONFIG.rootId)) return;
-
-    previousFocus = document.activeElement;
+  function createPopup() {
+    if (document.getElementById(CONFIG.rootId)) {
+      return;
+    }
 
     const style = document.createElement("style");
+
     style.id = CONFIG.styleId;
     style.textContent = CSS;
+
     document.head.appendChild(style);
 
-    root = document.createElement("div");
+    const root = document.createElement("div");
     root.id = CONFIG.rootId;
 
     root.innerHTML = `
-      <section class="ab-modal ab-install" id="abInstall"
-        role="dialog" aria-modal="true"
-        aria-label="Unduh aplikasi AIRBET88">
+      <section
+        class="ab-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Unduh aplikasi AIRBET88"
+      >
 
-        <button class="ab-close" id="abCloseInstall"
-          aria-label="Tutup pilihan aplikasi">×</button>
+        <button
+          class="ab-close"
+          id="abClose"
+          type="button"
+          aria-label="Tutup popup"
+        >×</button>
 
-        <h2 class="ab-title">UNDUH APPS</h2>
+        <!-- HEADER -->
 
-        <button class="ab-choice" id="abPwa">
-          <span class="ab-choice-icon">
-            ⇩
-            <small>PWA</small>
-          </span>
-          <span class="ab-choice-copy">
-            <strong>Lite Version</strong>
-            <span>
-              Akses instan, ringan, dan dapat
-              ditambahkan ke layar utama HP.
+        <div class="ab-header">
+
+          <img
+            class="ab-logo"
+            id="abLogo"
+            alt="AIRBET88"
+          >
+
+          <h2 class="ab-title">
+            UNDUH APPS
+          </h2>
+
+          <!-- 3 IMPORTANT ICONS -->
+
+          <div class="ab-trust">
+
+            <span class="ab-trust-item">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2 20 6v6c0 5-3 8-8 10-5-2-8-5-8-10V6z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              Aman
             </span>
-          </span>
-          <span class="ab-ribbon">Rekomendasi</span>
-        </button>
 
-        <button class="ab-choice" id="abApk">
-          <span class="ab-choice-icon">
-            ♟
-            <small>APK</small>
-          </span>
-          <span class="ab-choice-copy">
-            <strong>Full Version</strong>
-            <span>
-              Download aplikasi Android.
-              Pengguna iPhone akan diarahkan ke PWA.
+            <span class="ab-trust-item">
+              <svg viewBox="0 0 24 24">
+                <path d="m13 2-9 12h7l-1 8 10-12h-7z"/>
+              </svg>
+              Cepat
             </span>
-          </span>
-        </button>
 
-        <button class="ab-textbutton" id="abCompare">
-          ⓘ Apa perbedaan PWA dan APK?
-        </button>
+            <span class="ab-trust-item">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 13v-2a8 8 0 0 1 16 0v2"/>
+                <rect x="2" y="12" width="4" height="7" rx="2"/>
+                <rect x="18" y="12" width="4" height="7" rx="2"/>
+                <path d="M20 19c0 2-3 3-6 3"/>
+              </svg>
+              Support 24 Jam
+            </span>
 
-        <button class="ab-button ab-skip" id="abSkip">
-          Lewati dan Lihat Promosi →
-        </button>
-
-        <div class="ab-guide" id="abGuide" hidden>
-          <button class="ab-back" id="abBack">
-            ← Kembali
-          </button>
-
-          <div class="ab-eyebrow">AIRBET88 • PANDUAN</div>
-          <div id="abGuideContent"></div>
-
-          <button class="ab-button" id="abGuideCTA">
-            Mengerti
-          </button>
-        </div>
-      </section>
-
-      <section class="ab-modal" id="abPromo"
-        role="dialog" aria-modal="true"
-        aria-label="Promosi AIRBET88" hidden>
-
-        <button class="ab-close" id="abClosePromo"
-          aria-label="Tutup promosi">×</button>
-
-        <div class="ab-logo">
-          <img id="abLogo" alt="Logo AIRBET88">
-          <span class="ab-logo-fallback"
-            id="abLogoFallback" hidden>AIRBET88</span>
-        </div>
-
-        <div class="ab-slider" id="abSlider">
-          <img class="ab-slide" id="abSlide"
-            alt="Gambar promosi AIRBET88" hidden>
-
-          <div class="ab-fallback" id="abFallback">
-            <div>
-              <strong>AIRBET88</strong>
-              <p>Memuat gambar promosi...</p>
-            </div>
           </div>
-
-          <button class="ab-arrow ab-prev" id="abPrev"
-            aria-label="Gambar sebelumnya">‹</button>
-          <button class="ab-arrow ab-next" id="abNext"
-            aria-label="Gambar berikutnya">›</button>
         </div>
 
-        <div class="ab-dots" id="abDots"></div>
+        <!-- LITE VERSION -->
 
-        <div class="ab-actions">
-          <a id="abAyocek" target="_blank"
-            rel="noopener noreferrer">⌕ AYOCEK.COM</a>
-          <a id="abVip" target="_blank"
-            rel="noopener noreferrer">♛ MEMBERSHIP VIP</a>
-          <a id="abAdmin" target="_blank"
-            rel="noopener noreferrer">✉ HUBUNGI ADMIN</a>
-          <a id="abQuick" target="_blank"
-            rel="noopener noreferrer">↗ QUICK ACCESS</a>
-        </div>
+        <button
+          class="ab-option"
+          id="abPwa"
+          type="button"
+        >
 
-        <button class="ab-button ab-dismiss" id="abFinish">
-          TUTUP PROMO
+          <span class="ab-icon">
+            <img
+              id="abPwaLogo"
+              alt="Logo PWA AIRBET88"
+            >
+          </span>
+
+          <span class="ab-info">
+
+            <span class="ab-name">
+              Lite Version
+            </span>
+
+            <span class="ab-description">
+              Akses praktis dan nyaman melalui
+              aplikasi AIRBET88.
+            </span>
+
+          </span>
+
+          <span class="ab-ribbon">
+            Rekomendasi
+          </span>
+
         </button>
+
+        <!-- FULL VERSION -->
+
+        <button
+          class="ab-option"
+          id="abApk"
+          type="button"
+        >
+
+          <span class="ab-icon">
+            <img
+              id="abApkLogo"
+              alt="Logo APK AIRBET88"
+            >
+          </span>
+
+          <span class="ab-info">
+
+            <span class="ab-name">
+              Full Version
+            </span>
+
+            <span class="ab-description">
+              Akses praktis dan nyaman melalui
+              aplikasi AIRBET88.
+            </span>
+
+          </span>
+
+        </button>
+
+        <!-- BUKTI JP BANNER -->
+
+        <a
+          class="ab-jp"
+          id="abBuktiJP"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Lihat Bukti JP"
+        >
+          <img
+            id="abBannerJP"
+            alt="Bukti JP AIRBET88"
+          >
+        </a>
+
+        <!-- FOOTER -->
 
         <div class="ab-footer">
           © 2026 AIRBET88. All rights reserved.
         </div>
+
       </section>
     `;
 
     document.body.appendChild(root);
 
-    install = $("abInstall");
-    promo = $("abPromo");
-    guide = $("abGuide");
+    /* ========================================
+       SET IMAGE SOURCES
+    ======================================== */
 
-    $("abLogo").src = CONFIG.logo;
-    $("abLogo").onerror = () => {
-      $("abLogo").hidden = true;
-      $("abLogoFallback").hidden = false;
-    };
+    root.querySelector("#abLogo").src =
+      CONFIG.logo;
 
-    $("abAyocek").href = CONFIG.ayocek;
-    $("abVip").href = CONFIG.vip;
-    $("abAdmin").href = CONFIG.admin;
-    $("abQuick").href = CONFIG.quick;
+    root.querySelector("#abPwaLogo").src =
+      CONFIG.logoPwa;
 
-    $("abCloseInstall").onclick = showPromo;
-    $("abSkip").onclick = showPromo;
-    $("abClosePromo").onclick = closeAll;
-    $("abFinish").onclick = closeAll;
+    root.querySelector("#abApkLogo").src =
+      CONFIG.logoApk;
 
-    $("abPwa").onclick = () => {
+    root.querySelector("#abBannerJP").src =
+      CONFIG.bannerJP;
+
+    root.querySelector("#abBuktiJP").href =
+      CONFIG.buktiJP;
+
+    /* ========================================
+       CLOSE POPUP
+    ======================================== */
+
+    function closePopup() {
+      try {
+        localStorage.setItem(
+          CONFIG.storageKey,
+          String(Date.now())
+        );
+      } catch (e) {}
+
+      root.remove();
+      style.remove();
+    }
+
+    root.querySelector("#abClose").onclick =
+      closePopup;
+
+    /* ========================================
+       PWA BUTTON
+    ======================================== */
+
+    root.querySelector("#abPwa").onclick = () => {
       window.location.assign(CONFIG.pwa);
     };
 
-    $("abApk").onclick = downloadAPK;
-    $("abCompare").onclick = showComparison;
-    $("abBack").onclick = hideGuide;
+    /* ========================================
+       APK BUTTON
+    ======================================== */
 
-    $("abPrev").onclick = () => changeSlide(-1);
-    $("abNext").onclick = () => changeSlide(1);
+    root.querySelector("#abApk").onclick = () => {
 
-    CONFIG.images.forEach((_, index) => {
-      const dot = document.createElement("button");
-      dot.className = "ab-dot";
-      dot.type = "button";
-      dot.setAttribute("aria-label", "Gambar " + (index + 1));
-      dot.onclick = () => {
-        currentIndex = index;
-        renderSlide();
-        restartSlider();
-      };
-      $("abDots").appendChild(dot);
-    });
-
-    let touchStart = 0;
-
-    $("abSlider").addEventListener("touchstart", event => {
-      touchStart = event.changedTouches[0].screenX;
-    }, { passive: true });
-
-    $("abSlider").addEventListener("touchend", event => {
-      const diff = event.changedTouches[0].screenX - touchStart;
-      if (Math.abs(diff) > 45) {
-        changeSlide(diff < 0 ? 1 : -1);
+      // iPhone / iPad menggunakan PWA.
+      if (isIOS) {
+        window.location.assign(CONFIG.pwa);
+        return;
       }
-    }, { passive: true });
 
-    document.addEventListener("keydown", onKeydown);
-    document.addEventListener("visibilitychange", onVisibility);
+      // Android membuka file APK.
+      const link = document.createElement("a");
 
-    $("abCloseInstall").focus({ preventScroll: true });
-  }
+      link.href = CONFIG.apk;
+      link.download = "airbet88.apk";
+      link.rel = "noopener noreferrer";
 
-  function downloadAPK() {
-    if (isIOS) {
-      // iPhone langsung menuju halaman PWA.
-      window.location.assign(CONFIG.pwa);
-      return;
-    }
-
-    // Android: browser membuka file APK.
-    const link = document.createElement("a");
-    link.href = CONFIG.apk;
-    link.download = "airbet88.apk";
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
-
-  function showComparison() {
-    showGuide(`
-      <h3>PWA vs APK</h3>
-
-      <div class="ab-guide-card">
-        <strong>Lite Version (PWA)</strong>
-        <p>
-          Versi website yang bisa ditambahkan ke
-          layar utama. Biasanya lebih ringan,
-          tidak perlu mengunduh APK, dan
-          pembaruannya mengikuti website.
-        </p>
-      </div>
-
-      <div class="ab-guide-card">
-        <strong>Full Version (APK)</strong>
-        <p>
-          File instalasi khusus Android.
-          Memerlukan unduhan dan persetujuan
-          pemasangan. Fitur dan ukuran bergantung
-          pada aplikasi yang disediakan.
-        </p>
-      </div>
-
-      <div class="ab-guide-card">
-        <strong>Pengguna iPhone</strong>
-        <p>
-          Gunakan Lite Version (PWA).
-          Buka halaman di Safari, kemudian
-          pilih Bagikan → Tambahkan ke Layar Utama
-          → Tambah.
-        </p>
-      </div>
-    `, "Mengerti", hideGuide);
-  }
-
-  function showGuide(content, buttonText, handler) {
-    $("abGuideContent").innerHTML = content;
-    $("abGuideCTA").textContent = buttonText;
-    $("abGuideCTA").onclick = handler;
-    guide.hidden = false;
-    $("abBack").focus();
-  }
-
-  function hideGuide() {
-    guide.hidden = true;
-    $("abCompare").focus();
-  }
-
-  function showPromo() {
-    guide.hidden = true;
-    install.hidden = true;
-    promo.hidden = false;
-    currentStage = "promo";
-
-    currentIndex = 0;
-    renderSlide();
-    restartSlider();
-
-    $("abClosePromo").focus({ preventScroll: true });
-  }
-
-  function renderSlide() {
-    const token = ++loadToken;
-    const image = $("abSlide");
-    const fallback = $("abFallback");
-
-    image.hidden = true;
-    fallback.hidden = false;
-    fallback.querySelector("p").textContent =
-      "Memuat gambar promosi...";
-
-    const loader = new Image();
-
-    loader.onload = () => {
-      if (token !== loadToken || !root.isConnected) return;
-
-      image.src = loader.src;
-      image.alt = "Promo AIRBET88 " + (currentIndex + 1);
-      image.hidden = false;
-      fallback.hidden = true;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     };
 
-    loader.onerror = () => {
-      if (token !== loadToken || !root.isConnected) return;
-
-      fallback.querySelector("p").textContent =
-        "Gambar belum tersedia. Silakan coba lagi nanti.";
-    };
-
-    loader.src = CONFIG.images[currentIndex];
-
-    Array.from($("abDots").children).forEach((dot, i) => {
-      dot.classList.toggle("active", i === currentIndex);
-      dot.setAttribute("aria-current", String(i === currentIndex));
-    });
   }
 
-  function changeSlide(direction) {
-    currentIndex =
-      (currentIndex + direction + CONFIG.images.length) %
-      CONFIG.images.length;
-
-    renderSlide();
-    restartSlider();
-  }
-
-  function restartSlider() {
-    clearInterval(slideTimer);
-
-    if (currentStage !== "promo" || document.hidden) return;
-
-    slideTimer = setInterval(() => {
-      currentIndex = (currentIndex + 1) % CONFIG.images.length;
-      renderSlide();
-    }, CONFIG.interval);
-  }
-
-  function onVisibility() {
-    restartSlider();
-  }
-
-  function onKeydown(event) {
-    if (!root || !root.isConnected) return;
-
-    if (event.key === "Escape") {
-      if (!guide.hidden) {
-        hideGuide();
-      } else if (currentStage === "install") {
-        showPromo();
-      } else {
-        closeAll();
-      }
-      return;
-    }
-
-    if (currentStage === "promo") {
-      if (event.key === "ArrowRight") changeSlide(1);
-      if (event.key === "ArrowLeft") changeSlide(-1);
-    }
-
-    if (event.key !== "Tab") return;
-
-    const scope = !guide.hidden
-      ? guide
-      : currentStage === "install" ? install : promo;
-
-    const elements = Array.from(
-      scope.querySelectorAll("button:not([disabled]), a[href]")
-    ).filter(el => el.getClientRects().length > 0);
-
-    if (!elements.length) return;
-
-    const first = elements[0];
-    const last = elements[elements.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
-  function closeAll() {
-    clearInterval(slideTimer);
-    ++loadToken;
-
-    document.removeEventListener("keydown", onKeydown);
-    document.removeEventListener("visibilitychange", onVisibility);
-
-    try {
-      localStorage.setItem(
-        CONFIG.storageKey,
-        String(Date.now())
-      );
-    } catch (_) {}
-
-    root.remove();
-    document.getElementById(CONFIG.styleId)?.remove();
-
-    if (previousFocus && previousFocus.isConnected) {
-      previousFocus.focus();
-    }
-  }
+  /* ==========================================
+     INITIALIZATION
+  ========================================== */
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", create, {
-      once: true
-    });
+    document.addEventListener(
+      "DOMContentLoaded",
+      createPopup,
+      { once: true }
+    );
   } else {
-    create();
+    createPopup();
   }
+
 })();
