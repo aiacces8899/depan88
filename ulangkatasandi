@@ -1,0 +1,45 @@
+
+(function () {
+  "use strict";
+
+  function syncPassword() {
+    const password = document.querySelector(
+      '#password_field, input[name="Password"]'
+    );
+
+    const confirmPassword = document.querySelector(
+      '#ConfirmedPassword, input[name="ConfirmedPassword"]'
+    );
+
+    if (!password || !confirmPassword) return;
+
+    // Hindari memasang event berulang kali
+    if (password.dataset.syncConfirm === "true") return;
+    password.dataset.syncConfirm = "true";
+
+    function updateConfirmPassword() {
+      confirmPassword.value = password.value;
+
+      // Memicu validasi form
+      confirmPassword.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
+
+      confirmPassword.dispatchEvent(
+        new Event("change", { bubbles: true })
+      );
+    }
+
+    password.addEventListener("input", updateConfirmPassword);
+    password.addEventListener("change", updateConfirmPassword);
+
+    // Sinkronkan nilai awal
+    updateConfirmPassword();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", syncPassword);
+  } else {
+    syncPassword();
+  }
+})();
