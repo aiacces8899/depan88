@@ -1,45 +1,92 @@
 
 (function () {
-  "use strict";
+    "use strict";
 
-  function syncPassword() {
-    const password = document.querySelector(
-      '#password_field, input[name="Password"]'
-    );
+    function syncPassword(password) {
+        if (!password) return;
 
-    const confirmPassword = document.querySelector(
-      '#ConfirmedPassword, input[name="ConfirmedPassword"]'
-    );
+        const confirmPassword = document.querySelector(
+            '#ConfirmedPassword, input[name="ConfirmedPassword"]'
+        );
 
-    if (!password || !confirmPassword) return;
+        if (!confirmPassword) return;
 
-    // Hindari memasang event berulang kali
-    if (password.dataset.syncConfirm === "true") return;
-    password.dataset.syncConfirm = "true";
+        // Samakan nilai konfirmasi dengan kata sandi
+        if (confirmPassword.value !== password.value) {
+            confirmPassword.value = password.value;
 
-    function updateConfirmPassword() {
-      confirmPassword.value = password.value;
+            // Memicu validasi form
+            confirmPassword.dispatchEvent(
+                new Event("input", { bubbles: true })
+            );
 
-      // Memicu validasi form
-      confirmPassword.dispatchEvent(
-        new Event("input", { bubbles: true })
-      );
+            confirmPassword.dispatchEvent(
+                new Event("change", { bubbles: true })
+            );
+        }
 
-      confirmPassword.dispatchEvent(
-        new Event("change", { bubbles: true })
-      );
+        // Memicu validasi EqualTo jQuery jika tersedia
+        if (window.jQuery) {
+            window.jQuery(password).trigger("keyup");
+            window.jQuery(confirmPassword).trigger("keyup");
+            window.jQuery(confirmPassword).trigger("blur");
+        }
     }
 
-    password.addEventListener("input", updateConfirmPassword);
-    password.addEventListener("change", updateConfirmPassword);
+    function initPasswordSync() {
+        // Event delegation agar tetap berfungsi pada form AJAX/modal
+        document.addEventListener("input", function (event) {
+            if (
+                event.target.matches(
+                    '#password_field, input[name="Password"]'
+                )
+            ) {
+                syncPassword(event.target);
+            }
+        });
 
-    // Sinkronkan nilai awal
-    updateConfirmPassword();
-  }
+        document.addEventListener("change", function (event) {
+            if (
+                event.target.matches(
+                    '#password_field, input[name="Password"]'
+                )
+            ) {
+                syncPassword(event.target);
+            }
+        });
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", syncPassword);
-  } else {
-    syncPassword();
-  }
+        // Sinkronisasi awal
+        const password = document.querySelector(
+            '#password_field, input[name="Password"]'
+        );
+
+        if (password) {
+            syncPassword(password);
+        }
+
+        // Memantau form yang dimuat secara dinamis
+        const observer = new MutationObserver(function () {
+            const password = document.querySelector(
+                '#password_field, input[name="Password"]'
+            );
+
+            if (password) {
+                syncPassword(password);
+            }
+        });
+
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initPasswordSync
+        );
+    } else {
+        initPasswordSync();
+    }
 })();
